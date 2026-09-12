@@ -10,9 +10,9 @@ sys.path.insert(0,str(S/'scripts'))
 from common import atomic_json,digest,read_json
 from crop_image import crop
 
-def generate():
-    font_path=Path('C:/Windows/Fonts/malgun.ttf')
-    if not font_path.exists():raise RuntimeError('Use a Korean-capable font on this environment')
+def generate(font_path=Path('C:/Windows/Fonts/malgun.ttf')):
+    font_path=Path(font_path)
+    if not font_path.exists():raise RuntimeError('Korean-capable TrueType font not found: '+str(font_path)+' (pass --font)')
     font=ImageFont.truetype(str(font_path),26);small=ImageFont.truetype(str(font_path),22)
     cases=[('image-stimulus','지도와 범례가 결합된 창작 자료','map'),('text-viewbox','일반 텍스트 보기','viewbox'),
            ('timeline-image','표 형태의 창작 연표 자료','timeline'),('composite-letter','편지와 해설이 결합된 창작 자료','image')]
@@ -75,4 +75,7 @@ def generate():
             ('일반 보기의 텍스트·문단·밑줄을 편집 가능하게 유지한다.' if kind=='viewbox' else '제목·자료·범례·설명·장식 전체를 이미지로 보존한다. 표 모양이어도 자동으로 표 노드로 바꾸지 않는다.')+
             '\n\nsource.png와 question.json을 원본 대조에 사용한다. 파일 경로는 스킬 폴더를 작업 루트로 해석한 예시다. 실제 작업에는 작업 폴더로 복사하고 경로를 맞춘다.\n',encoding='utf-8',newline='\n')
     print('Generated four original visual cases')
-if __name__=='__main__':generate()
+if __name__=='__main__':
+    import argparse
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--font',default='C:/Windows/Fonts/malgun.ttf',help='Korean-capable TrueType font path')
+    generate(p.parse_args().font)

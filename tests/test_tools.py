@@ -168,6 +168,18 @@ class MechanicalTests(unittest.TestCase):
         missing=copy.deepcopy(q);missing['registration']['asset_ids']={'img':'asset-9999'};self.assertTrue(any('asset ids differ' in e for e in compare(missing,read)['errors']))
         untitled=copy.deepcopy(q);untitled['elements'][2]['viewbox_title']=None
         self.assertTrue(any("expected '', saved '<보기>'" in e for e in compare(untitled,read)['errors']))
+    def test_check_run_duplicates(self):
+        m=self.manifest();run=read_json(m)
+        for name in ['a','b']:
+            q=self.question();q['id']='same';atomic_json(self.root/f'runs/r1/{name}.json',q)
+        run['questions']=['runs/r1/a.json','runs/r1/b.json'];self.assertIn('Duplicate question IDs in run',check_run(run,self.root))
+        for name in ['a','b']:
+            q=read_json(self.root/f'runs/r1/{name}.json');q['id']=name;q['registration'].update(document_id='doc-x',creation_status='confirmed');atomic_json(self.root/f'runs/r1/{name}.json',q)
+        self.assertIn('Multiple questions target the same document',check_run(run,self.root))
+        q=read_json(self.root/'runs/r1/b.json');q['registration']['document_id']='doc-y';atomic_json(self.root/'runs/r1/b.json',q)
+        self.assertEqual(check_run(run,self.root),[])
+        run['operations']=[{'key':'k','question_id':'a','step':'write','status':'succeeded','document_id':'doc-x','evidence':'runs/r1/a.json','request':None,'response':None}]
+        self.assertTrue(any('no recorded response' in e for e in check_run(run,self.root)))
     def test_valid_hash_but_wrong_crop_pixels(self):
         q=self.question();source=self.root/q['pages'][0]['path']
         record=crop(source,[0,0,100,100],self.root/'asset.png')

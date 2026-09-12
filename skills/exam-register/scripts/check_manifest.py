@@ -78,6 +78,8 @@ def check_question(q,root,settings=None):
     if q['registration']['document_id'] and q['registration']['creation_status']!='confirmed': errors.append('Document ID needs confirmed creation status')
     for kind,v in q['verification'].items():
         if v['status']=='passed' and not v['evidence']: errors.append('Passed verification needs evidence: '+kind)
+        if kind=='visual' and v['status']=='passed' and not any(f.lower().endswith(('.png','.jpg','.jpeg')) for f in v['evidence']):
+            errors.append('Visual pass needs a screen capture file (.png/.jpg) in evidence')
         for f in v['evidence']:
             try:
                 if not local_path(root,f).is_file(): errors.append('Missing evidence: '+f)

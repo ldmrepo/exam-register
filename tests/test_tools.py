@@ -127,6 +127,13 @@ class MechanicalTests(unittest.TestCase):
         r=prepare(p,self.root);self.assertFalse(r['ok']);self.assertTrue(any('--resume' in e for e in r['errors']))
         snapshot=p.read_text(encoding='utf-8');r=prepare(p,self.root,resume=True)
         self.assertTrue(r['ok']);self.assertEqual(r['document_id'],'doc-1');self.assertEqual(p.read_text(encoding='utf-8'),snapshot)
+    def test_visual_pass_requires_capture_file(self):
+        q=self.question();(self.root/'runs').mkdir(exist_ok=True)
+        (self.root/'runs/notes.md').write_text('seen in chat',encoding='utf-8');Image.new('RGB',(4,4),'white').save(self.root/'runs/shot.png')
+        q['verification']['visual']={'status':'passed','evidence':['runs/notes.md'],'notes':''}
+        self.assertTrue(any('screen capture' in e for e in check_question(q,self.root)))
+        q['verification']['visual']['evidence'].append('runs/shot.png')
+        self.assertFalse(any('screen capture' in e for e in check_question(q,self.root)))
     def test_valid_hash_but_wrong_crop_pixels(self):
         q=self.question();source=self.root/q['pages'][0]['path']
         record=crop(source,[0,0,100,100],self.root/'asset.png')

@@ -4,13 +4,21 @@
 
 1. teamsword_ping → 필요한 group의 teamsword_commands_guide. 도구 노출과 인증 성공을 구분한다.
 2. 대상 폴더를 set_list로 조회하거나 사용자 범위 안에서 set_create. 반환 set ID를 manifest에 저장한다.
-3. 생성 전 고유 operation_key와 intent를 원자 저장한다. item_create {type:qti_item,title,interaction,setId} 후 document ID를 즉시 기록한다. ID가 있는 재시도는 read부터 시작한다. 생성 응답 손실 시 목록·제목·내용으로 확인하기 전 자동 재생성하지 않는다.
+3. 생성 전 고유 operation_key와 intent를 원자 저장한다. item_create {type:qti_item,title,interaction,setId} 후 document ID를 즉시 기록한다. ID가 있는 재시도는 read부터 시작한다. 생성 응답 손실 시 목록·제목·내용으로 확인하기 전 자동 재생성하지 않는다. **MCP에는 삭제·복구가 없다** — 잘못 만든 문서는 지울 수 없으므로 `item_update {documentId,status}`로 표시하고 manifest와 보고에 남긴다. 이것이 자동 재생성 금지의 이유다.
+
+   `item_create` 직후 첫 read의 blockId는 `blk:<type>:<from>:<to>` 위치 파생이다. 첫 쓰기 뒤 read부터 18자 안정 id가 온다. 재개 기록(`question.registration`, manifest)에는 첫 쓰기 뒤 read의 id만 저장한다.
 4. item_read의 version을 해당 쓰기의 expectedVersion으로 사용한다. 버전 충돌 때 최신 내용을 읽고 사용자의 변경을 보존한 새 연산만 준비한다. 중간 연산 실패는 일부 적용 가능성이 있어 전체 배치를 맹목적으로 재전송하지 않는다.
 
    새 빈 문서는 version=null일 수 있다. 그 문서가 방금 생성한 빈 대상임을 확인한 첫 쓰기에만 expectedVersion을 생략한다. null을 전달하면 입력 검증에 실패한다. 본문이 있는 이후 쓰기는 새 read의 문자열 버전을 사용한다.
-5. 질문은 item.prompt.set. 선택지는 정답 근거가 확인된 경우 item.choice.populate. 이는 모든 선택지를 교체하고 한 개 이상 correct:true가 필요하다. 정답 미확인이면 임의 정답을 넣지 말고 item.choice.add 등 실제 스키마에 맞는 별도 경로를 사용한다. populate의 선택지 텍스트는 최대 200자다. 긴 선택지·수식·강조는 별도 편집 경로의 지원을 확인한다.
+
+   문서당 첫 쓰기 배치는 `dryRun: true`로 한 번 보내 SCHEMA_MISMATCH·앵커 오류를 적용 전에 잡은 뒤 같은 배치를 실제 전송한다. dryRun은 커서 연쇄를 실행하지 않으므로 위치에 의존하는 결과는 실제 전송 후 read로 확인한다.
+5. 질문은 item.prompt.set. 선택지는 정답 근거가 확인된 경우 item.choice.populate. 이는 모든 선택지를 교체하고 한 개 이상 correct:true가 필요하다. 정답 미확인이면 임의 정답을 넣지 말고 item.choice.add 등 실제 스키마에 맞는 별도 경로를 사용한다. populate의 선택지 텍스트는 최대 200자다. 200자를 넘는 선택지는 `item.choice.add {text ≤2000, afterIdentifier?}` 또는 `item.choice.set_text {identifier, text ≤2000}`으로 넣고 정답은 `item.answer.set`으로 지정한다. 선택지 안의 밑줄·테두리·수식은 populate 뒤 read에서 선택지 문단 blockId를 얻어 7의 서식 경로로 적용한다.
+
+   `format.apply.mark`·`format.remove.mark`의 `mark`: `bold` · `italic` · `underline` · `strike` · `super` · `sub` · `text_box`(글자 사각 테두리) · `nowrap`(줄바꿈 금지). 원본의 네모 테두리 글자는 `text_box`, 지수·첨자는 `super`·`sub`.
 6. 그림은 asset_upload {documentId,dataBase64,filename,contentType} → 반환 assetId/url 기록 → edit_text의 content.insert.image {position:document_end,imageUrl,alt,naturalWidth,naturalHeight}. data URI를 imageUrl로 보내지 않는다. 이 두 단계는 별개다. 원본 파일과 재조회 파일을 바이트 해시 또는 서버 변환 시 픽셀·실제 화면으로 비교한다.
 7. content.insert.viewbox는 보기 상자 생성, content.insert.text는 본문 입력, content.insert.math는 LaTeX 입력이다. 커서·앵커로 정확한 삽입 위치를 지정하고 결과 구조를 읽는다. Markdown이나 HTML이 자동 해석된다고 가정하지 않는다.
+
+   편집 가능 표(`representation: native_table`)는 `content.insert.table {rows, cols, cells?, position}` → read에서 셀 blockId 확인 → `table.cell.set_text {blockId,text}` · `table.header.set` 순서다. `cells`를 주더라도 `rows`·`cols`는 필수다. 표 삭제는 `table.delete`(edit_structure)이며 호스트 확인이 뜬다.
 
    실측 경로: 질문 문단의 blockId를 read에서 얻어 cursor.move.block {blockId,target:end} → content.insert.image {position:cursor,...}로 질문 뒤·선택지 앞에 넣었다. 일반 보기는 같은 위치에서 content.insert.viewbox → content.insert.text {position:cursor,text}로 채웠다. 밑줄은 item_find로 유일한 문자열을 확인한 뒤 format.apply.mark {mark:underline,target:selection}과 연산 target.text를 사용한다.
 8. item.scoring.set은 현재 checkType(AND/OR), maxChoices만 지원한다. 2점·3점 같은 숫자 배점 필드가 아니다. 적용하지 못한 필수 배점은 unsupported로 기록한다.
@@ -47,6 +55,23 @@
 | `leaderMark` | `"㉠"` 같은 글자 | 문단 끝에서 오른쪽 끝까지 점선 리더와 끝 글자 |
 
 예: 본문 첫 줄 1자(11pt 글자) 들여쓰기 + 양끝 정렬 → `node.attrs.set {blockId, attrs: {textIndent: "11pt", align: "justify"}}`. 적용 뒤 read 의 `attrs` 로 확인한다. 위 표에 없는 서식은 현재 `teamsword_commands_guide` 의 `node.attrs.set` 스키마로 지원 여부를 확인하고, 없으면 미지원으로 기록한다. 공백 삽입으로 모사하지 않는다.
+
+## 오류와 복구
+
+오류는 도구 결과의 `structuredContent {code, message, detail}`로 온다(JSON-RPC 오류가 아니다). 코드별 행동은 고정이다.
+
+| code | 뜻 | 스킬의 행동 |
+|---|---|---|
+| `ASSET_STORAGE_UNWRITABLE` | 서버가 자산 저장 경로에 쓸 수 없음(배포 결함) | **재시도 금지.** 이미지 단계를 `blocked`로 두고 `detail.storageDir`를 기록해 관리자에게 보고한다. 텍스트·표로 대체하지 않는다 |
+| `DOCUMENT_VERSION_CONFLICT` | `expectedVersion` 뒤에 문서가 바뀜 | 아무 연산도 적용되지 않았다. 새 read → 새 version으로 같은 배치를 다시 보낸다 |
+| `AMBIGUOUS_TARGET` | `target.text`가 여러 곳 | `detail.candidates`를 보고 `occurrence`(1부터)를 지정한다 |
+| `TARGET_NOT_FOUND` | 앵커 문자열 없음 | read로 저장된 실제 문자열(전각 따옴표·공백·줄바꿈)을 확인해 앵커를 고친다 |
+| `SCHEMA_MISMATCH` | payload가 스키마와 다름 | 사전 검증이라 적용 없음. `detail.issues`의 필드를 고친다 |
+| `COMMAND_NOT_IN_TOOL` | 그 도구가 받지 않는 명령 | `detail.expectedTool`로 다시 호출한다 |
+| `RESULT_TOO_LARGE` | `item_read {format:"json"}` 200KB 초과 | `format: "outline"` 또는 `"html"`로 읽는다 |
+| `EXECUTION_FAILED` | 실행기 거절(목록 안 내어쓰기, 래퍼 경계 가로지름 등) | 배치는 그 인덱스에서 멈추고 **앞선 연산은 적용된 상태**다. read로 적용분을 확인한 뒤 남은 연산만 새 배치로 보낸다 |
+| `PERMISSION_DENIED` · `DOCUMENT_NOT_FOUND` | 권한 없음 · 문서/묶음 없음 | 폴더·문서 id와 API 키 사용자를 확인한다. 자동 재생성 금지 |
+| `INVALID_INPUT` | 인자 형식·범위, png/jpeg/svg 외 이미지, 서버 상한(기본 5MB) 초과 | 입력을 고친다. 이미지가 크면 원본 PDF를 낮은 배율로 다시 렌더해 자른다 |
 
 ## 재개 기록
 

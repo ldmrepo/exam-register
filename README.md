@@ -15,7 +15,7 @@ Codex에 저장소 주소와 `skills/exam-register` 경로를 제공하여 스�
 ## 사용
 
 작업 폴더에 inputs/cache/runs/config를 두고 원본 PDF를 inputs에 저장한다. Codex에 원본·대상 폴더·문항 범위를 알려 등록을 요청한다. 스킬은 원본 확인 → 요소 계획 → 추출 → 원본 대조 → MCP 등록 → 저장/화면 검증 순서로 진행한다.
-`check_manifest.py` 통과는 원문 정확도를 보장하지 않는다. 이미지 자료는 전체 캡션·범례를 보존하고 자른 이미지를 열어 확인한다. 업로드 실패를 텍스트·표로 대체하지 않는다.
+보조 도구: `render_pdf`·`crop_image`(렌더·크롭), `check_manifest`(명세·파일·상태 검사), `prepare_registration`(등록 전 게이트), `record_call`(MCP 요청·응답 기록), `check_readback`(저장본 대조), `record_state`(상태 전이). `check_manifest.py` 통과는 원문 정확도를 보장하지 않는다. 이미지 자료는 전체 캡션·범례를 보존하고 자른 이미지를 열어 확인한다. 업로드 실패를 텍스트·표로 대체하지 않는다.
 
 ## 검증과 배포
 

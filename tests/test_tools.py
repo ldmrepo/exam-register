@@ -15,6 +15,8 @@ from crop_image import crop
 from common import digest,atomic_json,read_json,local_path
 from check_manifest import check_question
 from record_state import transition
+from record_call import record, classify
+from check_manifest import check_run
 
 class MechanicalTests(unittest.TestCase):
     def setUp(self):
@@ -77,6 +79,35 @@ class MechanicalTests(unittest.TestCase):
         self.assertTrue(any('exceeds server limit' in x for x in check_question(q,self.root,{'asset_max_bytes':10})))
         (self.root/'config').mkdir();atomic_json(self.root/'config/settings.local.json',{'asset_max_bytes':10})
         self.assertTrue(any('exceeds server limit' in x for x in check_question(q,self.root)))
+    def manifest(self):
+        m=read_json(SKILL/'templates/run.json');m['run_id']='r1';p=self.root/'runs/r1/manifest.json';atomic_json(p,m);return p
+    def test_record_call_intent_then_response(self):
+        m=self.manifest();req=self.root/'runs/r1/req.json'
+        atomic_json(req,{'documentId':'d1','operations':[{'command':'item.prompt.set','payload':{'text':'q'}}],'headers':{'Authorization':'Bearer secret-token'}})
+        first=record(m,self.root,'q1','write','k1','runs/r1/req.json')
+        self.assertEqual(first['status'],'intent');self.assertIsNone(first['response'])
+        saved=read_json(self.root/first['request']);self.assertNotIn('secret-token',json.dumps(saved));self.assertIn('redacted',saved['headers']['Authorization'])
+        atomic_json(self.root/'runs/r1/res.json',{'structuredContent':{'status':'applied','results':[{'index':0,'applied':True}],'version':'v2'}})
+        second=record(m,self.root,'q1','write','k1','runs/r1/req.json','runs/r1/res.json')
+        ops=read_json(m)['operations']
+        self.assertEqual(len(ops),1);self.assertEqual(ops[0]['status'],'succeeded');self.assertEqual(second['request'],first['request'])
+        self.assertTrue((self.root/ops[0]['response']).is_file());self.assertEqual(check_run(read_json(m),self.root),[])
+    def test_record_call_failure_uncertain_and_sequence(self):
+        m=self.manifest();atomic_json(self.root/'runs/r1/req.json',{'documentId':'d1','operations':[]})
+        atomic_json(self.root/'runs/r1/bad.json',{'isError':True,'structuredContent':{'code':'SCHEMA_MISMATCH','message':'x'}})
+        self.assertEqual(record(m,self.root,'q1','write','k1','runs/r1/req.json','runs/r1/bad.json')['status'],'failed')
+        atomic_json(self.root/'runs/r1/partial.json',{'results':[{'applied':True},{'applied':False,'status':'skipped'}]})
+        self.assertEqual(record(m,self.root,'q1','write','k2','runs/r1/req.json','runs/r1/partial.json')['status'],'failed')
+        (self.root/'runs/r1/broken.json').write_text('{not json',encoding='utf-8')
+        self.assertEqual(record(m,self.root,'q2','upload','k3','runs/r1/req.json','runs/r1/broken.json')['status'],'uncertain')
+        atomic_json(self.root/'runs/r1/created.json',{'structuredContent':{'id':'doc-9','title':'t'}})
+        created=record(m,self.root,'q2','create','k4','runs/r1/req.json','runs/r1/created.json')
+        self.assertEqual(created['document_id'],'doc-9')
+        names=sorted(f.name for f in (self.root/'runs/r1/mcp').glob('*.request.json'))
+        self.assertEqual([n[:4] for n in names],['0001','0002','0003','0004'])
+        with self.assertRaises(ValueError):record(m,self.root,'q1','write','k5','../outside.json')
+        with self.assertRaises(ValueError):record(m,self.root,'q1','delete','k6','runs/r1/req.json')
+        self.assertEqual(classify(None),'intent');self.assertEqual(classify({'structuredContent':{'results':[]}}),'uncertain')
     def test_valid_hash_but_wrong_crop_pixels(self):
         q=self.question();source=self.root/q['pages'][0]['path']
         record=crop(source,[0,0,100,100],self.root/'asset.png')

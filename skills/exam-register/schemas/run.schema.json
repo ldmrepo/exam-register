@@ -92,6 +92,18 @@
           "evidence": {
             "type": "string",
             "minLength": 1
+          },
+          "request": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "response": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         },
         "required": [
@@ -100,7 +112,9 @@
           "step",
           "status",
           "document_id",
-          "evidence"
+          "evidence",
+          "request",
+          "response"
         ],
         "additionalProperties": false
       },

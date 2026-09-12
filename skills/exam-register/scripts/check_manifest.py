@@ -105,6 +105,13 @@ def check_run(run,root,settings=None):
             if q['registration']['document_id']: docs.append(q['registration']['document_id'])
             if not set(q['shared_material_ids']).issubset(run['shared_material_ids']): errors.append('Unknown shared material ID')
         except (OSError,ValueError,KeyError) as e: errors.append(str(e))
+    for op in run['operations']:
+        for k in ('request','response'):
+            if op.get(k):
+                try:
+                    if not local_path(root,op[k]).is_file(): errors.append('Missing operation file: '+op[k])
+                except ValueError as ex: errors.append(str(ex))
+        if op['status'] in ('succeeded','failed') and not op.get('response'): errors.append('Operation '+op['key']+' has a final status but no recorded response')
     if len(ids)!=len(set(ids)): errors.append('Duplicate question IDs in run')
     if len(docs)!=len(set(docs)): errors.append('Multiple questions target the same document')
     return errors

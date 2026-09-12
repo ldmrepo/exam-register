@@ -1,0 +1,9 @@
+{
+  "structuredContent": {
+    "id": "doc-b",
+    "type": "qti_item",
+    "interaction": "choice",
+    "version": "yupdate-sha256:fixture-b",
+    "html": "<itembody data-format-version=\"1\"><choiceinteraction data-max-choice=\"1\" data-max-choices=\"1\" data-check-type=\"AND\"><prompt data-id=\"pb\"><p id=\"pb1\">다음 창작 자료에 대한 설명으로 옳은 것은?</p><img src=\"/api/assets/doc-b/asset-0001\" alt=\"창작 지도 자료\" style=\"width: 100%\"><fieldset class=\"qti-viewbox left\" data-id=\"vb\"><div class=\"qti-viewbox-heading center\" contenteditable=\"false\">&lt;보기&gt;</div><div class=\"qti-viewbox-body\"><p id=\"vb1\">○ 제목이 있는 창작 보기.</p></div></fieldset></prompt><simplechoice identifier=\"1\" order=\"1\" data-id=\"cb1\" checked=\"checked\"><p id=\"cb1p\">자료의 구조를 보존한다.</p></simplechoice><simplechoice identifier=\"2\" order=\"2\" data-id=\"cb2\"><p id=\"cb2p\">자료를 임의의 표로 바꾼다.</p></simplechoice></choiceinteraction></itembody>"
+  }
+}

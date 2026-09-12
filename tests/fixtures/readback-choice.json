@@ -1,0 +1,7 @@
+{
+  "id": "doc-a",
+  "type": "qti_item",
+  "interaction": "choice",
+  "version": "yupdate-sha256:fixture-a",
+  "html": "<itembody data-format-version=\"1\"><choiceinteraction data-max-choice=\"1\" data-max-choices=\"1\" data-check-type=\"AND\"><prompt data-id=\"pa\"><p id=\"pa1\">밑줄 친 <u>낱말</u>의 쓰임으로 알맞은 것은?</p><fieldset class=\"qti-viewbox left\" data-id=\"va\" style=\"width: 100%\"><div class=\"qti-viewbox-heading center\" contenteditable=\"false\"></div><div class=\"qti-viewbox-body\"><p id=\"va1\">○ 창작 보기의 첫 문장이다.</p><p id=\"va2\">○ 창작 보기의 둘째 문장이다.</p></div></fieldset></prompt><simplechoice identifier=\"1\" order=\"1\" data-id=\"ca1\"><p id=\"ca1p\">첫째 창작 선택지</p></simplechoice><simplechoice identifier=\"2\" order=\"2\" data-id=\"ca2\"><p id=\"ca2p\">둘째 창작 선택지</p></simplechoice><simplechoice identifier=\"3\" order=\"3\" data-id=\"ca3\" checked=\"checked\"><p id=\"ca3p\">셋째 창작 선택지</p></simplechoice></choiceinteraction></itembody>"
+}

@@ -77,3 +77,5 @@
 
 로컬 question.registration에 set_id, document_id, version, asset_ids, operation_key, creation_status를 둔다. manifest.operations는 intent/succeeded/failed/uncertain을 기록한다. 실패에서 재개 시 이미 성공한 업로드 ID와 문서 ID를 재사용한다. 사용자 요청인 추가 사본에는 새로운 operation_key를 부여한다.
 스크립트는 원격 MCP를 직접 흉내 내지 않는다. Codex가 실제 연결된 MCP 도구를 호출하고 응답의 ID·버전·검증 근거를 저장한다.
+
+호출마다 `scripts/record_call.py` 로 남긴다: 보낼 요청을 `runs/<id>/…/req.json` 에 저장 → `record_call.py <manifest> --workspace <root> --question <qid> --step create|upload|write|read|verify|update --key <operation_key> --request <상대경로>`(status `intent`) → 도구 호출 → 응답을 저장하고 같은 명령에 `--response <상대경로>` 를 붙여 다시 실행(status `succeeded`·`failed`·`uncertain`). 요청·응답 사본은 `runs/<id>/mcp/NNNN-<step>-<qid>.{request,response}.json` 에 남고 `Authorization`·`dataBase64` 는 지워진다. `check_manifest.py --kind run` 은 최종 상태인데 응답 기록이 없는 operation 을 오류로 본다.

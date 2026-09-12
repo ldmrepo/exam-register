@@ -274,6 +274,12 @@
           },
           "alt": {
             "type": "string"
+          },
+          "viewbox_title": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         },
         "required": [

@@ -1,0 +1,7 @@
+{
+  "purpose": "Connection checklist only; not an active Codex MCP configuration",
+  "server_name": "teamsword",
+  "transport": "Use the actual server-supported transport",
+  "credentials": "Configure through Codex or the MCP provider; never store here",
+  "verify_tool": "teamsword_ping"
+}

@@ -1,0 +1,22 @@
+# TeamsWord MCP 등록·복구
+
+2026-09-12 실제 guide 점검. 현재 세션의 명령 스키마가 우선이다. 설정 예시만으로 MCP 연결이 활성화되지 않는다. 환경 키를 문서·로그에 저장하지 않는다.
+
+1. teamsword_ping → 필요한 group의 teamsword_commands_guide. 도구 노출과 인증 성공을 구분한다.
+2. 대상 폴더를 set_list로 조회하거나 사용자 범위 안에서 set_create. 반환 set ID를 manifest에 저장한다.
+3. 생성 전 고유 operation_key와 intent를 원자 저장한다. item_create {type:qti_item,title,interaction,setId} 후 document ID를 즉시 기록한다. ID가 있는 재시도는 read부터 시작한다. 생성 응답 손실 시 목록·제목·내용으로 확인하기 전 자동 재생성하지 않는다.
+4. item_read의 version을 해당 쓰기의 expectedVersion으로 사용한다. 버전 충돌 때 최신 내용을 읽고 사용자의 변경을 보존한 새 연산만 준비한다. 중간 연산 실패는 일부 적용 가능성이 있어 전체 배치를 맹목적으로 재전송하지 않는다.
+
+   새 빈 문서는 version=null일 수 있다. 그 문서가 방금 생성한 빈 대상임을 확인한 첫 쓰기에만 expectedVersion을 생략한다. null을 전달하면 입력 검증에 실패한다. 본문이 있는 이후 쓰기는 새 read의 문자열 버전을 사용한다.
+5. 질문은 item.prompt.set. 선택지는 정답 근거가 확인된 경우 item.choice.populate. 이는 모든 선택지를 교체하고 한 개 이상 correct:true가 필요하다. 정답 미확인이면 임의 정답을 넣지 말고 item.choice.add 등 실제 스키마에 맞는 별도 경로를 사용한다. populate의 선택지 텍스트는 최대 200자다. 긴 선택지·수식·강조는 별도 편집 경로의 지원을 확인한다.
+6. 그림은 asset_upload {documentId,dataBase64,filename,contentType} → 반환 assetId/url 기록 → edit_text의 content.insert.image {position:document_end,imageUrl,alt,naturalWidth,naturalHeight}. data URI를 imageUrl로 보내지 않는다. 이 두 단계는 별개다. 원본 파일과 재조회 파일을 바이트 해시 또는 서버 변환 시 픽셀·실제 화면으로 비교한다.
+7. content.insert.viewbox는 보기 상자 생성, content.insert.text는 본문 입력, content.insert.math는 LaTeX 입력이다. 커서·앵커로 정확한 삽입 위치를 지정하고 결과 구조를 읽는다. Markdown이나 HTML이 자동 해석된다고 가정하지 않는다.
+
+   실측 경로: 질문 문단의 blockId를 read에서 얻어 cursor.move.block {blockId,target:end} → content.insert.image {position:cursor,...}로 질문 뒤·선택지 앞에 넣었다. 일반 보기는 같은 위치에서 content.insert.viewbox → content.insert.text {position:cursor,text}로 채웠다. 밑줄은 item_find로 유일한 문자열을 확인한 뒤 format.apply.mark {mark:underline,target:selection}과 연산 target.text를 사용한다.
+8. item.scoring.set은 현재 checkType(AND/OR), maxChoices만 지원한다. 2점·3점 같은 숫자 배점 필드가 아니다. 적용하지 못한 필수 배점은 unsupported로 기록한다.
+9. item_read(html/outline/json/qti)의 지원 범위 안에서 저장 내용을 재조회한다. asset_read로 이미지 파일을 확인한다. 실제 UI는 별도로 검증한다. HTML이 미리보기용이라는 이유로 화면을 봤다고 보고하지 않는다.
+
+## 재개 기록
+
+로컬 question.registration에 set_id, document_id, version, asset_ids, operation_key, creation_status를 둔다. manifest.operations는 intent/succeeded/failed/uncertain을 기록한다. 실패에서 재개 시 이미 성공한 업로드 ID와 문서 ID를 재사용한다. 사용자 요청인 추가 사본에는 새로운 operation_key를 부여한다.
+스크립트는 원격 MCP를 직접 흉내 내지 않는다. Codex가 실제 연결된 MCP 도구를 호출하고 응답의 ID·버전·검증 근거를 저장한다.

@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "id": "text-viewbox",
+  "revision": 1,
+  "source": {
+    "path": "examples/text-viewbox/source.png",
+    "sha256": "2a01d7c3f9e187b88b0439a4237ae761d208cd13020e779d175dcff3d87eaa1d",
+    "exam_year": 2026,
+    "subject": "창작 검증",
+    "variant": "단일형",
+    "provenance": "이 패키지를 위해 작성한 CC0 예시"
+  },
+  "number": "2",
+  "interaction": "choice",
+  "max_choices": 1,
+  "pages": [
+    {
+      "path": "examples/text-viewbox/source.png",
+      "sha256": "2a01d7c3f9e187b88b0439a4237ae761d208cd13020e779d175dcff3d87eaa1d",
+      "source_sha256": "2a01d7c3f9e187b88b0439a4237ae761d208cd13020e779d175dcff3d87eaa1d",
+      "size": [
+        900,
+        1000
+      ],
+      "page": 1,
+      "scale": 1
+    }
+  ],
+  "regions": [
+    {
+      "page": 1,
+      "bbox": [
+        40,
+        100,
+        860,
+        920
+      ]
+    }
+  ],
+  "shared_material_ids": [],
+  "elements": [
+    {
+      "id": "prompt",
+      "order": 1,
+      "semantic_type": "prompt",
+      "representation": "text",
+      "reason": "일반 텍스트 보기",
+      "regions": [
+        {
+          "page": 1,
+          "bbox": [
+            40,
+            100,
+            860,
+            160
+          ]
+        }
+      ],
+      "text": "다음 자료의 보존 방식으로 적절한 것은?",
+      "asset": null,
+      "alt": ""
+    },
+    {
+      "id": "material",
+      "order": 2,
+      "semantic_type": "viewbox",
+      "representation": "text",
+      "reason": "일반 텍스트 보기",
+      "regions": [
+        {
+          "page": 1,
+          "bbox": [
+            60,
+            190,
+            841,
+            651
+          ]
+        }
+      ],
+      "text": "일반 텍스트 보기\n○ 원문의 문단과 기호를 보존한다.\n○ 밑줄 친 <u>핵심어</u>를 확인한다.",
+      "asset": null,
+      "alt": ""
+    },
+    {
+      "id": "c1",
+      "order": 3,
+      "semantic_type": "choice",
+      "representation": "text",
+      "reason": "선택지는 편집 가능한 텍스트",
+      "regions": [
+        {
+          "page": 1,
+          "bbox": [
+            60,
+            730,
+            840,
+            790
+          ]
+        }
+      ],
+      "text": "자료의 구조와 내용을 함께 보존한다.",
+      "asset": null,
+      "alt": ""
+    },
+    {
+      "id": "c2",
+      "order": 4,
+      "semantic_type": "choice",
+      "representation": "text",
+      "reason": "선택지는 편집 가능한 텍스트",
+      "regions": [
+        {
+          "page": 1,
+          "bbox": [
+            60,
+            810,
+            840,
+            870
+          ]
+        }
+      ],
+      "text": "모든 자료를 임의의 표로 바꾼다.",
+      "asset": null,
+      "alt": ""
+    }
+  ],
+  "choices": [
+    {
+      "id": "c1",
+      "label": "1",
+      "element_ids": [
+        "c1"
+      ]
+    },
+    {
+      "id": "c2",
+      "label": "2",
+      "element_ids": [
+        "c2"
+      ]
+    }
+  ],
+  "answer": {
+    "status": "confirmed",
+    "values": [
+      "c1"
+    ],
+    "evidence": "창작 문항 작성자가 지정한 정답. 공식 시험 정답 아님."
+  },
+  "printed_points": null,
+  "registration": {
+    "set_id": null,
+    "document_id": null,
+    "version": null,
+    "asset_ids": {},
+    "answer_application": "pending",
+    "points_application": "not_required",
+    "operation_key": "example-text-viewbox",
+    "creation_status": "not_started"
+  },
+  "verification": {
+    "source": {
+      "status": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    "structure": {
+      "status": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    "visual": {
+      "status": "pending",
+      "evidence": [],
+      "notes": ""
+    }
+  },
+  "state": "planned",
+  "resume_from": null,
+  "issues": [],
+  "history": []
+}

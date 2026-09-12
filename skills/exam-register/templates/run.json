@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "run_id": "new-run",
+  "questions": [],
+  "shared_material_ids": [],
+  "set_id": null,
+  "browser": {
+    "preference": "iab",
+    "actual": null,
+    "status": "pending"
+  },
+  "operations": [],
+  "timings_seconds": {}
+}

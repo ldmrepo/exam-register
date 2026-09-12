@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "id": "timeline-image",
+  "revision": 1,
+  "source": {
+    "path": "examples/timeline-image/source.png",
+    "sha256": "92c3f6ea7780c3e6591511b267d2e56fb63a7a622c95baf74385c606c4426741",
+    "exam_year": 2026,
+    "subject": "창작 검증",
+    "variant": "단일형",
+    "provenance": "이 패키지를 위해 작성한 CC0 예시"
+  },
+  "number": "3",
+  "interaction": "choice",
+  "max_choices": 1,
+  "pages": [
+    {
+      "path": "examples/timeline-image/source.png",
+      "sha256": "92c3f6ea7780c3e6591511b267d2e56fb63a7a622c95baf74385c606c4426741",
+      "source_sha256": "92c3f6ea7780c3e6591511b267d2e56fb63a7a622c95baf74385c606c4426741",
+      "size": [
+        900,
+        1000
+      ],
+      "page": 1,
+      "scale": 1
+    }
+  ],
+  "regions": [
+    {
+      "page": 1,
+      "bbox": [
+        40,
+        100,
+        860,
+        920
+      ]
+    }
+  ],
+  "shared_material_ids": [],
+  "elements": [
+    {
+      "id": "prompt",
+      "order": 1,
+      "semantic_type": "prompt",
+      "representation": "text",
+      "reason": "표 형태의 창작 연표 자료",
+      "regions": [
+        {
+          "page": 1,
+          "bbox": [
+            40,
+            100,
+            860,
+            160
+          ]
+        }
+      ],
+      "text": "다음 자료의 보존 방식으로 적절한 것은?",
+      "asset": null,
+      "alt": ""
+    },
+    {
+      "id": "material",
+      "order": 2,
+      "semantic_type": "timeline",
+      "representation": "image",
+      "reason": "표 형태의 창작 연표 자료",
+      "regions": [
+        {
+          "page": 1,
+          "bbox": [
+            60,
+            190,
+            841,
+            651
+          ]
+        }
+      ],
+      "text": "",
+      "asset": {
+        "path": "examples/timeline-image/material.png",
+        "sha256": "ede071a9b4a643f6bd2c09049e5a02ff11e1a910a611d408a303eff3d56f5120",
+        "size": [
+          781,
+          461
+        ]
+      },
+      "alt": "표 형태의 창작 연표 자료"
+    },
+    {
+      "id": "c1",
+      "order": 3,
+      "semantic_type": "choice",
+      "representation": "text",
+      "reason": "선택지는 편집 가능한 텍스트",
+      "regions": [
+        {
+          "page": 1,
+          "bbox": [
+            60,
+            730,
+            840,
+            790
+          ]
+        }
+      ],
+      "text": "자료의 구조와 내용을 함께 보존한다.",
+      "asset": null,
+      "alt": ""
+    },
+    {
+      "id": "c2",
+      "order": 4,
+      "semantic_type": "choice",
+      "representation": "text",
+      "reason": "선택지는 편집 가능한 텍스트",
+      "regions": [
+        {
+          "page": 1,
+          "bbox": [
+            60,
+            810,
+            840,
+            870
+          ]
+        }
+      ],
+      "text": "모든 자료를 임의의 표로 바꾼다.",
+      "asset": null,
+      "alt": ""
+    }
+  ],
+  "choices": [
+    {
+      "id": "c1",
+      "label": "1",
+      "element_ids": [
+        "c1"
+      ]
+    },
+    {
+      "id": "c2",
+      "label": "2",
+      "element_ids": [
+        "c2"
+      ]
+    }
+  ],
+  "answer": {
+    "status": "confirmed",
+    "values": [
+      "c1"
+    ],
+    "evidence": "창작 문항 작성자가 지정한 정답. 공식 시험 정답 아님."
+  },
+  "printed_points": null,
+  "registration": {
+    "set_id": null,
+    "document_id": null,
+    "version": null,
+    "asset_ids": {},
+    "answer_application": "pending",
+    "points_application": "not_required",
+    "operation_key": "example-timeline-image",
+    "creation_status": "not_started"
+  },
+  "verification": {
+    "source": {
+      "status": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    "structure": {
+      "status": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    "visual": {
+      "status": "pending",
+      "evidence": [],
+      "notes": ""
+    }
+  },
+  "state": "planned",
+  "resume_from": null,
+  "issues": [],
+  "history": []
+}

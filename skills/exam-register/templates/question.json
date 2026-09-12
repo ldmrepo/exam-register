@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "id": "q1",
+  "revision": 1,
+  "source": {
+    "path": "inputs/exam.pdf",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "exam_year": 2026,
+    "subject": "확인 필요",
+    "variant": "확인 필요",
+    "provenance": "원본 확인 후 작성"
+  },
+  "number": "1",
+  "interaction": "choice",
+  "max_choices": 1,
+  "pages": [
+    {
+      "path": "cache/page.png",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": [
+        1000,
+        1400
+      ],
+      "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "page": 1,
+      "scale": 2
+    }
+  ],
+  "regions": [
+    {
+      "page": 1,
+      "bbox": [
+        100,
+        100,
+        900,
+        1200
+      ]
+    }
+  ],
+  "shared_material_ids": [],
+  "elements": [
+    {
+      "id": "prompt",
+      "order": 1,
+      "semantic_type": "prompt",
+      "representation": "text",
+      "reason": "질문을 편집 가능한 텍스트로 보존",
+      "regions": [
+        {
+          "page": 1,
+          "bbox": [
+            100,
+            100,
+            900,
+            200
+          ]
+        }
+      ],
+      "text": "원본에서 전사",
+      "asset": null,
+      "alt": ""
+    }
+  ],
+  "choices": [],
+  "answer": {
+    "status": "unknown",
+    "values": [],
+    "evidence": ""
+  },
+  "printed_points": null,
+  "registration": {
+    "set_id": null,
+    "document_id": null,
+    "version": null,
+    "asset_ids": {},
+    "answer_application": "pending",
+    "points_application": "not_required",
+    "operation_key": "new-run-q1-original",
+    "creation_status": "not_started"
+  },
+  "verification": {
+    "source": {
+      "status": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    "structure": {
+      "status": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    "visual": {
+      "status": "pending",
+      "evidence": [],
+      "notes": ""
+    }
+  },
+  "state": "planned",
+  "resume_from": null,
+  "issues": [],
+  "history": []
+}

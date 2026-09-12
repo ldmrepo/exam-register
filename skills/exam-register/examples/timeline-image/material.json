@@ -1,0 +1,21 @@
+{
+  "path": "material.png",
+  "sha256": "ede071a9b4a643f6bd2c09049e5a02ff11e1a910a611d408a303eff3d56f5120",
+  "size": [
+    781,
+    461
+  ],
+  "source_image": "source.png",
+  "source_sha256": "92c3f6ea7780c3e6591511b267d2e56fb63a7a622c95baf74385c606c4426741",
+  "source_size": [
+    900,
+    1000
+  ],
+  "bbox": [
+    60,
+    190,
+    841,
+    651
+  ],
+  "visual_review": "pending"
+}

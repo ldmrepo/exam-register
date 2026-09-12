@@ -12,7 +12,7 @@
    새 빈 문서는 version=null일 수 있다. 그 문서가 방금 생성한 빈 대상임을 확인한 첫 쓰기에만 expectedVersion을 생략한다. null을 전달하면 입력 검증에 실패한다. 본문이 있는 이후 쓰기는 새 read의 문자열 버전을 사용한다.
 
    문서당 첫 쓰기 배치는 `dryRun: true`로 한 번 보내 SCHEMA_MISMATCH·앵커 오류를 적용 전에 잡은 뒤 같은 배치를 실제 전송한다. dryRun은 커서 연쇄를 실행하지 않으므로 위치에 의존하는 결과는 실제 전송 후 read로 확인한다.
-5. 질문은 item.prompt.set. 선택지는 정답 근거가 확인된 경우 item.choice.populate. 이는 모든 선택지를 교체하고 한 개 이상 correct:true가 필요하다. 정답 미확인이면 임의 정답을 넣지 말고 item.choice.add 등 실제 스키마에 맞는 별도 경로를 사용한다. populate의 선택지 텍스트는 최대 200자다. 200자를 넘는 선택지는 `item.choice.add {text ≤2000, afterIdentifier?}` 또는 `item.choice.set_text {identifier, text ≤2000}`으로 넣고 정답은 `item.answer.set`으로 지정한다. 선택지 안의 밑줄·테두리·수식은 populate 뒤 read에서 선택지 문단 blockId를 얻어 7의 서식 경로로 적용한다.
+5. 질문은 item.prompt.set. 선택지는 정답 근거가 확인된 경우 item.choice.populate. 이는 모든 선택지를 교체하고 한 개 이상 correct:true가 필요하다. 정답 미확인이면 임의 정답을 넣지 말고 item.choice.add 등 실제 스키마에 맞는 별도 경로를 사용한다. populate의 선택지 텍스트는 최대 2000자다(2026-09-12 105 배포본부터, #1600. 이전 서버는 200자 — `commands_guide`의 스키마로 확인). 200자 서버에서 긴 선택지는 `item.choice.add {text ≤2000, afterIdentifier?}` 또는 `item.choice.set_text {identifier, text ≤2000}`으로 넣고 정답은 `item.answer.set`으로 지정한다. LaTeX 리터럴(`\(…\)`)은 어느 경로에서도 거절되므로 수식은 `content.insert.math`로 넣는다. 선택지 안의 밑줄·테두리·수식은 populate 뒤 read에서 선택지 문단 blockId를 얻어 7의 서식 경로로 적용한다.
 
    `format.apply.mark`·`format.remove.mark`의 `mark`: `bold` · `italic` · `underline` · `strike` · `super` · `sub` · `text_box`(글자 사각 테두리) · `nowrap`(줄바꿈 금지). 원본의 네모 테두리 글자는 `text_box`, 지수·첨자는 `super`·`sub`.
 6. 그림은 asset_upload {documentId,dataBase64,filename,contentType} → 반환 assetId/url 기록 → edit_text의 content.insert.image {position:document_end,imageUrl,alt,naturalWidth,naturalHeight}. data URI를 imageUrl로 보내지 않는다. 이 두 단계는 별개다. 원본 파일과 재조회 파일을 바이트 해시 또는 서버 변환 시 픽셀·실제 화면으로 비교한다.
@@ -28,7 +28,7 @@
 
 `item_create {type:general_document,setId,title}`로 지문을 만든다. 박스 밖 안내 머리글을 일반 문단에 입력한 뒤 `content.insert.viewbox`와 `content.insert.text`로 원문의 박스 본문을 구성한다. 기존 내용 수정 시 먼저 최신 read를 저장하고 사용자 변경을 보존한다.
 
-`content.insert.viewbox`의 `headText` 생략은 기본 `<보기>`를 생성한다. 제목 없는 원본은 생성 후 read에서 보기박스 ID를 얻어 `node.attrs.set {blockId,attrs:{headText:""}}`로 제목을 비운다. 현재 스키마와 dryRun으로 적용 가능성을 확인한다. 박스 밖 안내문, 박스 제목 유무, 내부 문단 및 서식을 재조회한다. 문서가 general_document라는 이유로 박스를 제거하지 않는다.
+`content.insert.viewbox`의 `headText` 생략은 기본 `<보기>`를 생성한다. 제목 없는 원본은 `headText: ""`로 삽입하면 제목 없이 만들어진다(2026-09-12 105 배포본부터, #1598). 그 이전 서버는 생성 후 read에서 보기박스 ID를 얻어 `node.attrs.set {blockId,attrs:{headText:""}}`로 비운다 — `teamsword_commands_guide`의 `content.insert.viewbox` 스키마에서 `headText` 최소 길이가 1이면 옛 서버다. 박스 밖 안내문, 박스 제목 유무, 내부 문단 및 서식을 재조회한다. 문서가 general_document라는 이유로 박스를 제거하지 않는다.
 
 ## 문단 서식·구간 대괄호·언어 블록 (2026-09-12 배포본 기준)
 

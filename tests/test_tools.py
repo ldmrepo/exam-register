@@ -63,12 +63,26 @@ class MechanicalTests(unittest.TestCase):
         self.assertEqual(read_json(p)['resume_from'],'upload')
     def test_path_escape(self):
         with self.assertRaises(ValueError):local_path(self.root,'../secret.txt')
+    def image_question(self):
+        q=self.question();source=self.root/q['pages'][0]['path']
+        record=crop(source,[0,0,100,100],self.root/'asset.png')
+        e=copy.deepcopy(q['elements'][0]);e.update(id='image',order=4,representation='image',semantic_type='image',text='',alt='source crop',regions=[{'page':1,'bbox':[0,0,100,100]}],asset={'path':'asset.png','sha256':record['sha256'],'size':[100,100],'bytes':record['bytes']})
+        q['elements'].append(e);return q,record
+    def test_asset_bytes_recorded_and_server_limit(self):
+        q,record=self.image_question()
+        self.assertEqual(record['bytes'],(self.root/'asset.png').stat().st_size);self.assertEqual(record['content_type'],'image/png')
+        self.assertEqual(check_question(q,self.root),[])
+        wrong=copy.deepcopy(q);wrong['elements'][-1]['asset']['bytes']=record['bytes']+1
+        self.assertTrue(any('Byte size mismatch' in x for x in check_question(wrong,self.root)))
+        self.assertTrue(any('exceeds server limit' in x for x in check_question(q,self.root,{'asset_max_bytes':10})))
+        (self.root/'config').mkdir();atomic_json(self.root/'config/settings.local.json',{'asset_max_bytes':10})
+        self.assertTrue(any('exceeds server limit' in x for x in check_question(q,self.root)))
     def test_valid_hash_but_wrong_crop_pixels(self):
         q=self.question();source=self.root/q['pages'][0]['path']
         record=crop(source,[0,0,100,100],self.root/'asset.png')
-        e=copy.deepcopy(q['elements'][0]);e.update(id='image',order=4,representation='image',semantic_type='image',text='',alt='source crop',regions=[{'page':1,'bbox':[0,0,100,100]}],asset={'path':'asset.png','sha256':record['sha256'],'size':[100,100]})
+        e=copy.deepcopy(q['elements'][0]);e.update(id='image',order=4,representation='image',semantic_type='image',text='',alt='source crop',regions=[{'page':1,'bbox':[0,0,100,100]}],asset={'path':'asset.png','sha256':record['sha256'],'size':[100,100],'bytes':record['bytes']})
         q['elements'].append(e);self.assertEqual(check_question(q,self.root),[])
-        Image.new('RGB',(100,100),'black').save(self.root/'asset.png');e['asset']['sha256']=digest(self.root/'asset.png')
+        Image.new('RGB',(100,100),'black').save(self.root/'asset.png');e['asset']['sha256']=digest(self.root/'asset.png');e['asset']['bytes']=(self.root/'asset.png').stat().st_size
         self.assertTrue(any('Crop pixels differ' in x for x in check_question(q,self.root)))
 
 if __name__=='__main__':unittest.main()

@@ -18,7 +18,7 @@ def crop(source, bbox, output):
         out=im.crop(bbox)
         output.parent.mkdir(parents=True,exist_ok=True)
         temp=output.with_suffix('.tmp.png'); out.save(temp); temp.replace(output)
-        record={'path':str(output.resolve()),'sha256':digest(output),'size':list(out.size),
+        record={'path':str(output.resolve()),'sha256':digest(output),'size':list(out.size),'bytes':output.stat().st_size,'content_type':'image/png',
                 'source_image':str(source.resolve()),'source_sha256':digest(source),'source_size':list(im.size),
                 'bbox':bbox,'visual_review':'pending'}
     atomic_json(output.with_suffix('.json'),record)

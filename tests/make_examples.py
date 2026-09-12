@@ -59,7 +59,7 @@ def generate():
                     'regions':[{'page':1,'bbox':bbox}],'text':text,'asset':a,'alt':alt}
         q['elements']=[el('prompt',1,'prompt','text',[40,100,860,160],prompt)]
         if asset:
-            q['elements'].append(el('material',2,kind,'image',[60,190,841,651],a={'path':rel(folder/'material.png'),'sha256':asset['sha256'],'size':asset['size']},alt=desc))
+            q['elements'].append(el('material',2,kind,'image',[60,190,841,651],a={'path':rel(folder/'material.png'),'sha256':asset['sha256'],'size':asset['size'],'bytes':asset['bytes']},alt=desc))
         else:q['elements'].append(el('material',2,'viewbox','text',[60,190,841,651],'일반 텍스트 보기\n○ 원문의 문단과 기호를 보존한다.\n○ 밑줄 친 <u>핵심어</u>를 확인한다.'))
         q['choices']=[]
         for j,text in enumerate(choices):
@@ -73,6 +73,6 @@ def generate():
             atomic_json(folder/'material.json',asset)
         (folder/'decision.md').write_text(f'# {desc}\n\n이 사례는 직접 작성한 CC0 자료다. 실제 수능 문제의 대체 정답 자료가 아니다.\n\nsemantic_type={kind}; representation={"text" if kind=="viewbox" else "image"}. '+
             ('일반 보기의 텍스트·문단·밑줄을 편집 가능하게 유지한다.' if kind=='viewbox' else '제목·자료·범례·설명·장식 전체를 이미지로 보존한다. 표 모양이어도 자동으로 표 노드로 바꾸지 않는다.')+
-            '\n\nsource.png와 question.json을 원본 대조에 사용한다. 파일 경로는 스킬 폴더를 작업 루트로 해석한 예시다. 실제 작업에는 작업 폴더로 복사하고 경로를 맞춘다.\n',encoding='utf-8')
+            '\n\nsource.png와 question.json을 원본 대조에 사용한다. 파일 경로는 스킬 폴더를 작업 루트로 해석한 예시다. 실제 작업에는 작업 폴더로 복사하고 경로를 맞춘다.\n',encoding='utf-8',newline='\n')
     print('Generated four original visual cases')
 if __name__=='__main__':generate()

@@ -3,5 +3,6 @@
   "render_scale": 2,
   "browser_preference": "iab",
   "mcp_server_name": "teamsword",
-  "parallel_extraction": false
+  "parallel_extraction": false,
+  "asset_max_bytes": 5242880
 }

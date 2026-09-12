@@ -7,8 +7,15 @@ from jsonschema import Draft202012Validator
 from common import read_json, local_path, digest, valid_box
 
 SKILL=Path(__file__).resolve().parents[1]
+DEFAULT_ASSET_MAX_BYTES=5242880  # 서버 ASSET_MAX_BYTES 기본값. 배포마다 config/settings.local.json 의 asset_max_bytes 로 맞춘다.
 
-def check_question(q,root):
+def load_settings(root):
+    path=Path(root)/'config/settings.local.json'
+    return read_json(path) if path.is_file() else {}
+
+def check_question(q,root,settings=None):
+    if settings is None: settings=load_settings(root)
+    asset_max=int(settings.get('asset_max_bytes',DEFAULT_ASSET_MAX_BYTES))
     errors=[f'{list(e.path)}: {e.message}' for e in Draft202012Validator(read_json(SKILL/'schemas/question.schema.json')).iter_errors(q)]
     if errors: return errors
     def file_record(record,image=False):
@@ -18,6 +25,10 @@ def check_question(q,root):
             if image:
                 with Image.open(path) as im:
                     if list(im.size)!=record['size']: errors.append('Image size mismatch: '+record['path'])
+            if 'bytes' in record:
+                actual=path.stat().st_size
+                if actual!=record['bytes']: errors.append('Byte size mismatch: '+record['path'])
+                if actual>asset_max: errors.append(f'Asset exceeds server limit ({actual} > {asset_max} bytes): '+record['path'])
         except (OSError,ValueError) as e: errors.append(str(e))
     file_record(q['source'])
     pages={}
@@ -82,14 +93,15 @@ def check_question(q,root):
     if q['state'] in ['blocked','needs_revision'] and not q['resume_from']: errors.append('Missing resume step')
     return errors
 
-def check_run(run,root):
+def check_run(run,root,settings=None):
+    if settings is None: settings=load_settings(root)
     errors=[str(e.message) for e in Draft202012Validator(read_json(SKILL/'schemas/run.schema.json')).iter_errors(run)]
     if errors:return errors
     ids=[]; docs=[]
     for relative in run['questions']:
         try:
             q=read_json(local_path(root,relative)); ids.append(q['id'])
-            errors.extend(relative+': '+e for e in check_question(q,root))
+            errors.extend(relative+': '+e for e in check_question(q,root,settings))
             if q['registration']['document_id']: docs.append(q['registration']['document_id'])
             if not set(q['shared_material_ids']).issubset(run['shared_material_ids']): errors.append('Unknown shared material ID')
         except (OSError,ValueError,KeyError) as e: errors.append(str(e))

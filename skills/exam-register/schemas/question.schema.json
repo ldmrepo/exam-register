@@ -253,12 +253,17 @@
                     "items": false,
                     "minItems": 2,
                     "maxItems": 2
+                  },
+                  "bytes": {
+                    "type": "integer",
+                    "minimum": 1
                   }
                 },
                 "required": [
                   "path",
                   "sha256",
-                  "size"
+                  "size",
+                  "bytes"
                 ],
                 "additionalProperties": false
               },

@@ -11,6 +11,9 @@ Codex가 원본을 보고 문항 영역·유형·요소를 판단한다. 보조 
 
 ## 시작
 
+- 일반 시험 등록과 MCP 기능 검증을 구분한다. 기능 검증은 사용자가 지정한 표본·호출·재조회 범위로 수행하고, UI 검증 여부를 별도로 기록한다. 브라우저 편집 금지 등 사용자의 도구 제약을 따른다.
+- 문서 유형과 내부 표현을 별도로 계획한다. 공통 지문은 기본적으로 별도 일반 리치에디터 문서(`general_document`), 문항은 `qti_item`으로 등록한다. 일반 문서 안에서도 원문의 머리글·보기박스를 보존한다. 상세 기준은 [요소 규칙](references/element-rules.md)을 따른다.
+
 - 사용자 요청 범위와 작업 폴더의 기록부터 확인한다. 기존 문항 수정, 추가 사본, 재시도를 구분한다.
 - 실행 데이터는 설치 스킬 밖의 작업 폴더에 둔다. `config/settings.local.json`과 `runs/<id>/manifest.json`을 사용한다.
 - Python 환경은 `scripts/check_env.py --workspace <작업폴더>`로 점검한다. MCP는 `teamsword_ping` 및 필요한 그룹의 `teamsword_commands_guide`로 실제 확인한다.

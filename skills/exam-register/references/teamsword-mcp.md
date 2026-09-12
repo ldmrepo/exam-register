@@ -16,6 +16,12 @@
 8. item.scoring.set은 현재 checkType(AND/OR), maxChoices만 지원한다. 2점·3점 같은 숫자 배점 필드가 아니다. 적용하지 못한 필수 배점은 unsupported로 기록한다.
 9. item_read(html/outline/json/qti)의 지원 범위 안에서 저장 내용을 재조회한다. asset_read로 이미지 파일을 확인한다. 실제 UI는 별도로 검증한다. HTML이 미리보기용이라는 이유로 화면을 봤다고 보고하지 않는다.
 
+## 별도 일반 지문 문서 입력
+
+`item_create {type:general_document,setId,title}`로 지문을 만든다. 박스 밖 안내 머리글을 일반 문단에 입력한 뒤 `content.insert.viewbox`와 `content.insert.text`로 원문의 박스 본문을 구성한다. 기존 내용 수정 시 먼저 최신 read를 저장하고 사용자 변경을 보존한다.
+
+`content.insert.viewbox`의 `headText` 생략은 기본 `<보기>`를 생성한다. 제목 없는 원본은 생성 후 read에서 보기박스 ID를 얻어 `node.attrs.set {blockId,attrs:{headText:""}}`로 제목을 비운다. 현재 스키마와 dryRun으로 적용 가능성을 확인한다. 박스 밖 안내문, 박스 제목 유무, 내부 문단 및 서식을 재조회한다. 문서가 general_document라는 이유로 박스를 제거하지 않는다.
+
 ## 재개 기록
 
 로컬 question.registration에 set_id, document_id, version, asset_ids, operation_key, creation_status를 둔다. manifest.operations는 intent/succeeded/failed/uncertain을 기록한다. 실패에서 재개 시 이미 성공한 업로드 ID와 문서 ID를 재사용한다. 사용자 요청인 추가 사본에는 새로운 operation_key를 부여한다.

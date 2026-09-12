@@ -34,7 +34,19 @@
 | 구간 대괄호 `[A]`·`(가)` | `content.wrap.range_bracket` | `{target, side: left\|right, label: ""≤20자}` | 문단 단위. 이미 대괄호 안이면 side·label 만 변경(중첩 없음). 경계 가로지르는 선택은 거부. 해제는 `node.unwrap` |
 | 영어·일본어 등 언어 블록 | `content.wrap.language_block` | `{target, language: english\|korean\|japanese\|chinese\|french\|german\|dutch\|vietnamese\|indonesia\|thai}` | 안이면 언어만 변경. 해제는 `node.unwrap` |
 
-첫 줄만 들여쓰는 서식(첫 줄 1자 등)은 위 명령에 없다. 원본에 그 서식이 있으면 현재 `teamsword_commands_guide` 로 지원 여부를 다시 확인하고, 없으면 미지원으로 기록한다. 공백 삽입으로 모사하지 않는다.
+첫 줄 들여쓰기·오른쪽 여백·줄 간격·문단 위아래 여백은 위 `format.*` 명령에 없고 **`node.attrs.set {blockId, attrs}`**(edit_structure)로 놓는다. read 의 outline 에서 문단 blockId 를 얻어 한 번에 여러 속성을 정확한 값으로 지정할 수 있다.
+
+| 속성 | 값 | 뜻 |
+|---|---|---|
+| `textIndent` | `"<pt>pt"` | 첫 줄 상대 오프셋. 양수 = 첫 줄 들여쓰기(예 1자 ≈ 글자 크기 pt), 음수 = 내어쓰기 |
+| `indent` · `leftIndent` | 정수 레벨(레벨당 18pt) · `"<pt>pt"` | 왼쪽 여백. 18pt 격자 밖 값은 `leftIndent` 를 쓰되 `round(pt/18) === indent` 가 되도록 둘을 함께 놓는다 |
+| `rightIndent` | `"<pt>pt"` | 오른쪽 여백 |
+| `align` | `left` · `center` · `right` · `justify` | `format.paragraph.align` 과 같은 값 |
+| `lineSpacing` | `"1"` · `"1.15"` · `"1.5"` · `"2"` | 줄 간격 |
+| `paddingTop` · `paddingBottom` | `"6pt"` 같은 CSS 길이 | 문단 안쪽 위아래 여백 |
+| `leaderMark` | `"㉠"` 같은 글자 | 문단 끝에서 오른쪽 끝까지 점선 리더와 끝 글자 |
+
+예: 본문 첫 줄 1자(11pt 글자) 들여쓰기 + 양끝 정렬 → `node.attrs.set {blockId, attrs: {textIndent: "11pt", align: "justify"}}`. 적용 뒤 read 의 `attrs` 로 확인한다. 위 표에 없는 서식은 현재 `teamsword_commands_guide` 의 `node.attrs.set` 스키마로 지원 여부를 확인하고, 없으면 미지원으로 기록한다. 공백 삽입으로 모사하지 않는다.
 
 ## 재개 기록
 

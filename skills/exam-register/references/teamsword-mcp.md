@@ -4,7 +4,7 @@
 
 1. teamsword_ping → 필요한 group의 teamsword_commands_guide. 도구 노출과 인증 성공을 구분한다.
 2. 대상 폴더를 set_list로 조회하거나 사용자 범위 안에서 set_create. 반환 set ID를 manifest에 저장한다.
-3. 생성 전 고유 operation_key와 intent를 원자 저장한다. item_create {type:qti_item,title,interaction,setId} 후 document ID를 즉시 기록한다. ID가 있는 재시도는 read부터 시작한다. 생성 응답 손실 시 목록·제목·내용으로 확인하기 전 자동 재생성하지 않는다. **MCP에는 삭제·복구가 없다** — 잘못 만든 문서는 지울 수 없으므로 `item_update {documentId,status}`로 표시하고 manifest와 보고에 남긴다. 이것이 자동 재생성 금지의 이유다.
+3. 생성 전 `scripts/prepare_registration.py`로 상태·검사·의도를 한 번에 확인한다(통과 시 `creation_status: intent_recorded`). 이미 document_id가 있으면 `--resume`, 의도만 있고 ID가 없으면 `item_list`로 확인한 뒤 `--resume`. item_create {type:qti_item,title,interaction,setId} 후 document ID를 즉시 기록한다. ID가 있는 재시도는 read부터 시작한다. 생성 응답 손실 시 목록·제목·내용으로 확인하기 전 자동 재생성하지 않는다. **MCP에는 삭제·복구가 없다** — 잘못 만든 문서는 지울 수 없으므로 `item_update {documentId,status}`로 표시하고 manifest와 보고에 남긴다. 이것이 자동 재생성 금지의 이유다.
 
    `item_create` 직후 첫 read의 blockId는 `blk:<type>:<from>:<to>` 위치 파생이다. 첫 쓰기 뒤 read부터 18자 안정 id가 온다. 재개 기록(`question.registration`, manifest)에는 첫 쓰기 뒤 read의 id만 저장한다.
 4. item_read의 version을 해당 쓰기의 expectedVersion으로 사용한다. 버전 충돌 때 최신 내용을 읽고 사용자의 변경을 보존한 새 연산만 준비한다. 중간 연산 실패는 일부 적용 가능성이 있어 전체 배치를 맹목적으로 재전송하지 않는다.

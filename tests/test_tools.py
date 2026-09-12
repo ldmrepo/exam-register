@@ -17,6 +17,7 @@ from check_manifest import check_question
 from record_state import transition
 from record_call import record, classify
 from check_manifest import check_run
+from prepare_registration import prepare
 
 class MechanicalTests(unittest.TestCase):
     def setUp(self):
@@ -108,6 +109,24 @@ class MechanicalTests(unittest.TestCase):
         with self.assertRaises(ValueError):record(m,self.root,'q1','write','k5','../outside.json')
         with self.assertRaises(ValueError):record(m,self.root,'q1','delete','k6','runs/r1/req.json')
         self.assertEqual(classify(None),'intent');self.assertEqual(classify({'structuredContent':{'results':[]}}),'uncertain')
+    def reviewed_question(self):
+        q=self.question();(self.root/'runs').mkdir(exist_ok=True);(self.root/'runs/review.md').write_text('reviewed',encoding='utf-8')
+        q['state']='reviewed';q['verification']['source']={'status':'passed','evidence':['runs/review.md'],'notes':''}
+        for s in ['planned','extracted']: q['history'].append({'from':s,'to':'x','at':'2026-09-12T00:00:00+00:00','evidence':'e'})
+        p=self.root/'q.json';atomic_json(p,q);return p
+    def test_prepare_registration_gate(self):
+        p=self.reviewed_question();q=read_json(p)
+        q['state']='extracted';atomic_json(p,q);r=prepare(p,self.root);self.assertFalse(r['ok']);self.assertTrue(any('reviewed' in e for e in r['errors']))
+        q=read_json(self.reviewed_question());q['verification']['source']['status']='pending';q['state']='extracted';atomic_json(p,q)
+        self.assertTrue(any('source comparison' in e for e in prepare(p,self.root)['errors']))
+        p=self.reviewed_question();before=read_json(p)['revision']
+        r=prepare(p,self.root);self.assertTrue(r['ok']);after=read_json(p)
+        self.assertEqual(after['registration']['creation_status'],'intent_recorded');self.assertEqual(after['revision'],before)
+        r=prepare(p,self.root);self.assertFalse(r['ok']);self.assertTrue(any('previous creation intent' in e for e in r['errors']))
+        after['registration']['document_id']='doc-1';after['registration']['creation_status']='confirmed';atomic_json(p,after)
+        r=prepare(p,self.root);self.assertFalse(r['ok']);self.assertTrue(any('--resume' in e for e in r['errors']))
+        snapshot=p.read_text(encoding='utf-8');r=prepare(p,self.root,resume=True)
+        self.assertTrue(r['ok']);self.assertEqual(r['document_id'],'doc-1');self.assertEqual(p.read_text(encoding='utf-8'),snapshot)
     def test_valid_hash_but_wrong_crop_pixels(self):
         q=self.question();source=self.root/q['pages'][0]['path']
         record=crop(source,[0,0,100,100],self.root/'asset.png')

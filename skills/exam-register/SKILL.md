@@ -27,7 +27,7 @@ Codex가 원본을 보고 문항 영역·유형·요소를 판단한다. 보조 
 4. 텍스트·수식을 원문대로 전사한다. 작은 부호가 불명확하면 PDF를 더 높은 배율로 다시 렌더한다. [이미지 규칙](references/image-rules.md)에 따라 자료 전체를 자르고 반드시 실제 크롭을 연다.
    문단별 첫 줄 들여쓰기의 유무·크기와 정렬을 원본 PDF에서 시각 판단한다. 첫 줄 1자 들여쓰기·양끝 정렬은 일괄 기본값이 아니며, 원문 근거나 해당 범위의 명시적 사용자 요청이 있을 때만 적용한다. 문단 역할별 판정과 불명확·미지원 처리 기준은 [요소 규칙](references/element-rules.md#문단-들여쓰기와-정렬)을 따른다.
 5. `scripts/check_manifest.py <question.json> --workspace <작업폴더>`를 실행하고 원본과 전사·크롭을 시각 대조한다. 스크립트 통과를 내용 정확성으로 보고하지 않는다.
-6. [MCP 등록·복구](references/teamsword-mcp.md)에 따라 검토 완료 문항을 생성·업로드·입력한다. 호출마다 `scripts/record_call.py`로 요청(intent)을 먼저, 응답을 뒤에 기록한다. 생성 의도와 반환 ID를 즉시 기록한다. 최신 버전이 필요한 쓰기는 순차 실행한다.
+6. `scripts/prepare_registration.py <question.json> --workspace <작업폴더>`를 통과한 문항만 등록한다(state reviewed · 기계 검사 0건 · 원본 대조 통과 · 중복 생성 방지, 기존 문서 계속은 `--resume`). 그 뒤 [MCP 등록·복구](references/teamsword-mcp.md)에 따라 생성·업로드·입력한다. 호출마다 `scripts/record_call.py`로 요청(intent)을 먼저, 응답을 뒤에 기록한다. 생성 의도와 반환 ID를 즉시 기록한다. 최신 버전이 필요한 쓰기는 순차 실행한다.
 7. 저장 내용을 MCP로 재조회하고 실제 편집기 화면을 원본과 비교한다. [검증 기준](references/verification.md)에 따라 등록·구조·화면·정답·배점 상태를 분리한다.
 
 ## 중단과 재개

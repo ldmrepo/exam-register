@@ -2,7 +2,7 @@
 name: exam-register
 description: Visually extract exam PDF questions and register editable text and preserved source images through TeamsWord MCP. Use for exam registration, source comparison, and resuming recorded registrations.
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # 시험지 문항 추출·TeamsWord 등록

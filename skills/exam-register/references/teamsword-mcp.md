@@ -22,6 +22,20 @@
 
 `content.insert.viewbox`의 `headText` 생략은 기본 `<보기>`를 생성한다. 제목 없는 원본은 생성 후 read에서 보기박스 ID를 얻어 `node.attrs.set {blockId,attrs:{headText:""}}`로 제목을 비운다. 현재 스키마와 dryRun으로 적용 가능성을 확인한다. 박스 밖 안내문, 박스 제목 유무, 내부 문단 및 서식을 재조회한다. 문서가 general_document라는 이유로 박스를 제거하지 않는다.
 
+## 문단 서식·구간 대괄호·언어 블록 (2026-09-12 배포본 기준)
+
+`target` 은 `current_block`(커서가 있는 블록) 또는 `selection`(선택이 닿은 모든 블록)이다. 대상 블록으로 이동하려면 read 의 blockId 로 `cursor.move.block` 을 먼저 실행하거나 `selection.select.block` 으로 선택한다. 적용 후 read 의 문단 속성으로 확인한다.
+
+| 원본 서식 | 명령 | payload | 비고 |
+|---|---|---|---|
+| 문단 정렬(왼쪽·가운데·오른쪽·양끝) | `format.paragraph.align` | `{align: left\|center\|right\|justify, target}` | 출처 오른쪽 정렬, 본문 양끝 정렬 등 |
+| 문단 전체 들여쓰기 | `format.paragraph.indent` | `{direction: increase\|decrease, count?, target}` | 단계 단위(1단계 18pt). 임의 pt 지정이 아니다 |
+| 내어쓰기(둘째 줄부터 들여쓰기) | `format.paragraph.hanging_indent` | `{pt: 0<pt≤504, target}` | 첫 줄은 그대로, `(가) …`·`응: …` 형태. 목록 안 문단은 거부 |
+| 구간 대괄호 `[A]`·`(가)` | `content.wrap.range_bracket` | `{target, side: left\|right, label: ""≤20자}` | 문단 단위. 이미 대괄호 안이면 side·label 만 변경(중첩 없음). 경계 가로지르는 선택은 거부. 해제는 `node.unwrap` |
+| 영어·일본어 등 언어 블록 | `content.wrap.language_block` | `{target, language: english\|korean\|japanese\|chinese\|french\|german\|dutch\|vietnamese\|indonesia\|thai}` | 안이면 언어만 변경. 해제는 `node.unwrap` |
+
+첫 줄만 들여쓰는 서식(첫 줄 1자 등)은 위 명령에 없다. 원본에 그 서식이 있으면 현재 `teamsword_commands_guide` 로 지원 여부를 다시 확인하고, 없으면 미지원으로 기록한다. 공백 삽입으로 모사하지 않는다.
+
 ## 재개 기록
 
 로컬 question.registration에 set_id, document_id, version, asset_ids, operation_key, creation_status를 둔다. manifest.operations는 intent/succeeded/failed/uncertain을 기록한다. 실패에서 재개 시 이미 성공한 업로드 ID와 문서 ID를 재사용한다. 사용자 요청인 추가 사본에는 새로운 operation_key를 부여한다.

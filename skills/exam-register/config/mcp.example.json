@@ -1,7 +1,57 @@
 {
-  "purpose": "Connection checklist only; not an active Codex MCP configuration",
+  "purpose": "Connection reference only. Copy the block for your host into that host's own config file; this file is never read by the skill. See references/mcp-setup.md",
   "server_name": "teamsword",
-  "transport": "Use the actual server-supported transport",
-  "credentials": "Configure through Codex or the MCP provider; never store here",
-  "verify_tool": "teamsword_ping"
+  "endpoint": "http://<host>:<port>/api/v1/mcp",
+  "transport": "streamable-http",
+  "protocol_version": "2025-06-18",
+  "auth_header": "Authorization: Bearer twk_...",
+  "verify_tool": "teamsword_ping",
+  "verify_response": {
+    "pong": true,
+    "userId": "<uuid>",
+    "authKind": "api_key",
+    "era": "legacy"
+  },
+  "tool_count": 16,
+  "hosts": {
+    "codex": {
+      "file": "~/.codex/config.toml",
+      "toml": [
+        "[mcp_servers.teamsword]",
+        "url = \"http://<host>:<port>/api/v1/mcp\"",
+        "",
+        "[mcp_servers.teamsword.http_headers]",
+        "Authorization = \"Bearer twk_...\""
+      ]
+    },
+    "claude_code": {
+      "file": "~/.claude.json",
+      "command": "claude mcp add --transport http teamsword http://<host>:<port>/api/v1/mcp --header \"Authorization: Bearer twk_...\""
+    },
+    "claude_desktop": {
+      "file": "%APPDATA%/Claude/claude_desktop_config.json",
+      "note": "stdio only; needs the mcp-remote bridge (npm install -g mcp-remote)",
+      "mcpServers": {
+        "teamsword": {
+          "command": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "C:\\Program Files\\nodejs\\node_modules\\mcp-remote\\dist\\proxy.js",
+            "http://<host>:<port>/api/v1/mcp",
+            "--allow-http",
+            "--transport",
+            "http-only",
+            "--header",
+            "Authorization:${AUTH_HEADER}"
+          ],
+          "env": { "AUTH_HEADER": "Bearer twk_..." }
+        }
+      }
+    }
+  },
+  "windows_pitfalls": [
+    "\"command\": \"npx\" breaks: the .cmd wrapper loses stdio when spawned without a shell. Use full paths to node.exe and proxy.js",
+    "A space inside the --header value splits the argument. Pass Authorization:${AUTH_HEADER} with env.AUTH_HEADER",
+    "Plain HTTP needs --allow-http; --transport http-only removes the SSE fallback attempt"
+  ],
+  "key_storage_warning": "The API key is stored in plain text inside the host config file above. Exclude those files from commits, backups and screen sharing. Never write the key into this skill's workspace, manifest or reports."
 }

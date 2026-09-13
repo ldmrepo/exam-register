@@ -2,6 +2,8 @@
 
 2026-09-12 실제 guide 점검. 현재 세션의 명령 스키마가 우선이다. 설정 예시만으로 MCP 연결이 활성화되지 않는다. 환경 키를 문서·로그에 저장하지 않는다.
 
+이 문서는 **붙은 뒤**의 연산 규칙이다. 엔드포인트·인증·호스트별 설정·Windows 함정은 [연결 절차](mcp-setup.md)를 본다.
+
 1. teamsword_ping → 필요한 group의 teamsword_commands_guide. 도구 노출과 인증 성공을 구분한다.
 2. 대상 폴더를 set_list로 조회하거나 사용자 범위 안에서 set_create. 반환 set ID를 manifest에 저장한다.
 3. 생성 전 `scripts/prepare_registration.py`로 상태·검사·의도를 한 번에 확인한다(통과 시 `creation_status: intent_recorded`). 이미 document_id가 있으면 `--resume`, 의도만 있고 ID가 없으면 `item_list`로 확인한 뒤 `--resume`. item_create {type:qti_item,title,interaction,setId} 후 document ID를 즉시 기록한다. ID가 있는 재시도는 read부터 시작한다. 생성 응답 손실 시 목록·제목·내용으로 확인하기 전 자동 재생성하지 않는다. **MCP에는 삭제·복구가 없다** — 잘못 만든 문서는 지울 수 없으므로 `item_update {documentId,status}`로 표시하고 manifest와 보고에 남긴다. 이것이 자동 재생성 금지의 이유다.

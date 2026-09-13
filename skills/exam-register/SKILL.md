@@ -2,7 +2,7 @@
 name: exam-register
 description: Visually extract exam PDF questions and register editable text and preserved source images through TeamsWord MCP. Use for exam registration, source comparison, and resuming recorded registrations.
 metadata:
-  version: "1.0.2"
+  version: "1.0.3"
 ---
 
 # 시험지 문항 추출·TeamsWord 등록
@@ -16,7 +16,7 @@ Codex가 원본을 보고 문항 영역·유형·요소를 판단한다. 보조 
 
 - 사용자 요청 범위와 작업 폴더의 기록부터 확인한다. 기존 문항 수정, 추가 사본, 재시도를 구분한다.
 - 실행 데이터는 설치 스킬 밖의 작업 폴더에 둔다. `config/settings.local.json`과 `runs/<id>/manifest.json`을 사용한다.
-- Python 환경은 `scripts/check_env.py --workspace <작업폴더>`로 점검한다. MCP는 `teamsword_ping` 및 필요한 그룹의 `teamsword_commands_guide`로 실제 확인한다.
+- Python 환경은 `scripts/check_env.py --workspace <작업폴더>`로 점검한다. MCP 연결은 [연결 절차](references/mcp-setup.md)를 따른다 — 엔드포인트는 호스트 주소가 아니라 `/api/v1/mcp` 경로까지이고 인증은 `Authorization: Bearer twk_…` 다. 붙은 뒤 `teamsword_ping` 및 필요한 그룹의 `teamsword_commands_guide`로 실제 확인한다. 도구 노출과 인증 성공을 구분한다.
 - 기존 사용자가 지정한 브라우저 선호를 보존한다. 설정이 없으면 현재 연결된 도구를 확인한다. 화면을 볼 수 없으면 API 검사는 계속하고 시각 검증은 unavailable로 남긴다.
 
 ## 처리

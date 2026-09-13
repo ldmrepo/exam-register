@@ -54,4 +54,4 @@ if ($sourceSkill -ne $targetSkill) {
         throw
     }
 }
-@{ installedSkill=$targetSkill; workspace=$workRoot; backup=$backup; dependenciesSkipped=[bool]$SkipDependencies; mcp='Check teamsword_ping in Codex'; recognition='Verify skill in next turn' } | ConvertTo-Json
+@{ installedSkill=$targetSkill; workspace=$workRoot; backup=$backup; dependenciesSkipped=[bool]$SkipDependencies; mcp='Connect first: POST http://<host>:<port>/api/v1/mcp with Authorization: Bearer twk_... (see references/mcp-setup.md), then verify with teamsword_ping'; recognition='Verify skill in next turn' } | ConvertTo-Json

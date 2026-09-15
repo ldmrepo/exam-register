@@ -67,6 +67,7 @@
     "values": [],
     "evidence": ""
   },
+  "simulation": null,
   "printed_points": null,
   "registration": {
     "set_id": null,

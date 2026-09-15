@@ -28,6 +28,9 @@
 | 표 모양의 시각 자료·연표 | table / timeline | 원본 배치가 의미를 가지면 image |
 | 순수 데이터 표 | table | 사용자가 편집 가능 표를 원하고 원본 재현이 가능하면 native_table — 절차는 [MCP 등록·복구](teamsword-mcp.md) 7 |
 | 수식·그래프 | formula / graph | 수식 latex, 그래프 image |
+| 응시자가 조작해 답하는 화면 | simulation | simulation — 절차는 [시뮬레이션 규칙](simulation-rules.md) |
+
+시뮬레이션은 **답의 모양**으로 가른다. 답이 보기 중 하나면 선다형, 글자·수 하나면 완성형, 조작 결과의 상태면 시뮬레이션이다. 움직이는 화면을 보여 주기만 하고 답은 따로 고르는 문항은 선다형 + 이미지다. 시뮬레이션 문항은 `interaction: simulation` 이고 선택지를 갖지 않으며, 자산 HTML 과 `config` · `seed` · `initial` · 정답을 명세의 `simulation` 블록에 기록한다.
 
 박스 유무나 PDF 내부 래스터 여부만으로 결정하지 않는다. 자료 안 텍스트를 편집 가능한 지문으로 임의 분리하지 않는다. 한국사 4번 같은 연표는 table/timeline + image 사례다.
 공통 자료를 문항마다 중복 추출하지 않는다. TeamsWord의 공유 연결이 실제 지원되지 않으면 미지원으로 기록하고 별도 지문 문서를 유지한다. 사본 삽입은 사용자가 요청한 경우에만 수행한다.

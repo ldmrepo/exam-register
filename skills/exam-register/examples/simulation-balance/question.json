@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "id": "simulation-balance",
+  "revision": 1,
+  "source": {
+    "path": "examples/simulation-balance/source.png",
+    "sha256": "70527f0127a6c7a004d85491f7fb5f2442a2ce07dd0ae1db1d92dd7022c1273f",
+    "exam_year": 2026,
+    "subject": "창작 검증",
+    "variant": "단일형",
+    "provenance": "이 패키지를 위해 작성한 CC0 예시"
+  },
+  "number": "5",
+  "interaction": "simulation",
+  "max_choices": 1,
+  "pages": [
+    {
+      "path": "examples/simulation-balance/source.png",
+      "sha256": "70527f0127a6c7a004d85491f7fb5f2442a2ce07dd0ae1db1d92dd7022c1273f",
+      "source_sha256": "70527f0127a6c7a004d85491f7fb5f2442a2ce07dd0ae1db1d92dd7022c1273f",
+      "size": [
+        900,
+        700
+      ],
+      "page": 1,
+      "scale": 1
+    }
+  ],
+  "regions": [
+    {
+      "page": 1,
+      "bbox": [
+        40,
+        100,
+        860,
+        620
+      ]
+    }
+  ],
+  "shared_material_ids": [],
+  "elements": [
+    {
+      "id": "prompt",
+      "order": 1,
+      "semantic_type": "prompt",
+      "representation": "text",
+      "reason": "질문은 편집 가능한 텍스트",
+      "regions": [
+        {
+          "page": 1,
+          "bbox": [
+            40,
+            100,
+            860,
+            180
+          ]
+        }
+      ],
+      "text": "받침점 왼쪽 3 m 자리에 2 kg 추가 있다. 오른쪽 3 kg 추를 어느 자리에 두어야 지레가 수평이 되는가? 화면에서 직접 맞추시오.",
+      "asset": null,
+      "alt": ""
+    },
+    {
+      "id": "stage",
+      "order": 2,
+      "semantic_type": "simulation",
+      "representation": "simulation",
+      "reason": "답이 보기 중 하나가 아니라 조작 결과의 상태다",
+      "regions": [
+        {
+          "page": 1,
+          "bbox": [
+            60,
+            210,
+            841,
+            601
+          ]
+        }
+      ],
+      "text": "",
+      "asset": null,
+      "alt": "지레 균형 실험. 오른쪽 추의 거리를 옮겨 수평을 맞춘다."
+    }
+  ],
+  "choices": [],
+  "answer": {
+    "status": "confirmed",
+    "values": [
+      "{\"d\":2}"
+    ],
+    "evidence": "2 kg × 3 m = 3 kg × 2 m. author 모드에서 수평을 만든 뒤 시뮬레이션이 낸 문자열."
+  },
+  "simulation": {
+    "asset": {
+      "path": "examples/simulation-balance/simulation.html",
+      "sha256": "f9f4d66210f94d4d74b6183a1c328c8c0bb0900d8a3c3835cca7533190d94ed4",
+      "bytes": 6409
+    },
+    "alt": "지레 균형 실험. 받침점 왼쪽 3 m 에 2 kg, 오른쪽에 3 kg 추가 있고 오른쪽 추의 거리를 옮길 수 있다.",
+    "config": "{\"m1\":2,\"x1\":3,\"m2\":3}",
+    "seed": null,
+    "initial": "{\"d\":5}",
+    "width": 480,
+    "height": null,
+    "align": "center",
+    "conformance": {
+      "editor_handshake": "pending",
+      "author_checked": [],
+      "notes": "이 사례는 파일만 제공한다. 요건 4·9·12 는 편집기에 넣고 조작해 확인한다."
+    }
+  },
+  "printed_points": null,
+  "registration": {
+    "set_id": null,
+    "document_id": null,
+    "version": null,
+    "asset_ids": {},
+    "answer_application": "pending",
+    "points_application": "not_required",
+    "operation_key": "example-simulation-balance",
+    "creation_status": "not_started"
+  },
+  "verification": {
+    "source": {
+      "status": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    "structure": {
+      "status": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    "visual": {
+      "status": "pending",
+      "evidence": [],
+      "notes": ""
+    }
+  },
+  "state": "planned",
+  "resume_from": null,
+  "issues": [],
+  "history": []
+}

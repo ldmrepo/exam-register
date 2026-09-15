@@ -132,6 +132,32 @@ def _check_choices_and_answer(errors, q, ids):
         errors.append('Unknown answer cannot be applied')
 
 
+def _check_simulation_block(errors, q, root, asset_max):
+    """명세 안의 앞뒤. 자산 HTML 자체는 check_simulation.py 가 본다."""
+    sim = q['simulation']
+    if q['interaction'] != 'simulation':
+        if sim is not None:
+            errors.append('Only a simulation item carries a simulation block')
+        return
+    if sim is None:
+        errors.append('Simulation item has no simulation block')
+        return
+    if q['choices']:
+        errors.append('Simulation has no choices')
+    holders = [e for e in q['elements'] if e['representation'] == 'simulation']
+    if len(holders) != 1:
+        errors.append('Exactly one element represents the simulation')
+    for e in holders:
+        if e['semantic_type'] != 'simulation':
+            errors.append('Simulation element needs semantic_type simulation: ' + e['id'])
+        if e['asset'] is not None:
+            errors.append('The simulation file is recorded in the simulation block, not element.asset')
+    _check_file_record(errors, root, sim['asset'], asset_max)
+    answer = q['answer']
+    if answer['status'] == 'confirmed' and len(answer['values']) != 1:
+        errors.append('A simulation answer is exactly one value string')
+
+
 def _check_verification(errors, q, root):
     for kind, v in q['verification'].items():
         if v['status'] == 'passed' and not v['evidence']:
@@ -178,6 +204,7 @@ def check_question(q, root, settings=None):
     pages = _check_pages(errors, q, root, asset_max)
     ids = _check_elements(errors, q, root, pages, asset_max)
     _check_choices_and_answer(errors, q, ids)
+    _check_simulation_block(errors, q, root, asset_max)
     _check_verification(errors, q, root)
     _check_registration_and_state(errors, q)
     return errors

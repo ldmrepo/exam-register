@@ -19,6 +19,7 @@ from record_call import record, classify
 from check_manifest import check_run
 from prepare_registration import prepare
 from check_readback import compare
+from check_simulation import check_simulation, document_root_name
 FIX=Path(__file__).resolve().parent/'fixtures'
 
 class MechanicalTests(unittest.TestCase):
@@ -187,5 +188,68 @@ class MechanicalTests(unittest.TestCase):
         q['elements'].append(e);self.assertEqual(check_question(q,self.root),[])
         Image.new('RGB',(100,100),'black').save(self.root/'asset.png');e['asset']['sha256']=digest(self.root/'asset.png');e['asset']['bytes']=(self.root/'asset.png').stat().st_size
         self.assertTrue(any('Crop pixels differ' in x for x in check_question(q,self.root)))
+
+    SIM_HTML=('<!DOCTYPE html><html><head><meta charset="utf-8"><title>t</title></head><body>'
+        '<input id="d" type="range"><script>'
+        'function send(t,e){var m={qtiSim:1,type:t};for(var k in e)m[k]=e[k];window.parent.postMessage(m,"*");}'
+        'window.addEventListener("message",function(ev){var m=ev.data;if(!m||m.qtiSim!==1)return;'
+        'if(m.type==="init"){}else if(m.type==="mode"){}else if(m.type==="response.set"){}'
+        'else if(m.type==="response.get"){send("response",{value:{d:1},requestId:m.requestId});}'
+        'else if(m.type==="reset"){}});'
+        'send("ready",{contract:1,a11y:{description:"설명"}});</script></body></html>')
+    def simulation(self,html=None):
+        q=self.question();q.update(interaction='simulation',choices=[])
+        q['elements']=[q['elements'][0],{'id':'stage','order':2,'semantic_type':'simulation','representation':'simulation',
+            'reason':'답이 조작 결과의 상태다','regions':[{'page':1,'bbox':[10,110,500,400]}],'text':'','asset':None,'alt':'지레'}]
+        path=self.root/'sim.html';path.write_text(html if html is not None else self.SIM_HTML,encoding='utf-8',newline='\n')
+        q['answer']={'status':'confirmed','values':['{"d":2}'],'evidence':'author 모드에서 만든 상태'}
+        q['simulation']={'asset':{'path':'sim.html','sha256':digest(path),'bytes':path.stat().st_size},
+            'alt':'지레 균형','config':'{"m1":2}','seed':None,'initial':'{"d":5}','width':480,'height':None,
+            'align':'center','conformance':{'editor_handshake':'pending','author_checked':[],'notes':''}}
+        return q
+    def test_simulation_asset_is_html_and_self_contained(self):
+        q=self.simulation();self.assertEqual(check_question(q,self.root),[])
+        self.assertEqual(check_simulation(q,self.root)['errors'],[])
+        svg=self.simulation('<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg"><script>send("ready")</script></svg>')
+        self.assertTrue(any('classifies this as an image' in e for e in check_simulation(svg,self.root)['errors']))
+        cdn=self.simulation(self.SIM_HTML.replace('<body>','<body><script src="https://cdn.example/x.js"></script>'))
+        self.assertTrue(any('External reference' in e for e in check_simulation(cdn,self.root)['errors']))
+        net=self.simulation(self.SIM_HTML.replace('send("ready"','fetch("/x");send("ready"'))
+        self.assertTrue(any('Network call' in e for e in check_simulation(net,self.root)['errors']))
+        # 본문 안 인라인 svg 는 루트가 아니므로 시뮬레이션으로 남는다
+        inline=self.simulation(self.SIM_HTML.replace('<body>','<body><svg width="10" height="10"></svg>'))
+        self.assertEqual(check_simulation(inline,self.root)['checked']['root_element'],'html')
+        self.assertEqual(document_root_name('<!-- c --><!doctype html><html>'),'html')
+        self.assertIsNone(document_root_name('   plain text'))
+    def test_simulation_handshake_strings_and_values(self):
+        gone=self.simulation(self.SIM_HTML.replace('m.type==="response.set"','m.type==="nope"'))
+        self.assertIn('Handshake string not found: response.set',check_simulation(gone,self.root)['errors'])
+        same=self.simulation();same['simulation']['initial']='{"d":2}'
+        self.assertTrue(any('Answer equals the starting state' in e for e in check_simulation(same,self.root)['errors']))
+        leak=self.simulation();leak['simulation']['config']='{"m1":2,"target":{"d":2}}'
+        self.assertTrue(any('appears inside config' in e for e in check_simulation(leak,self.root)['errors']))
+        bad=self.simulation();bad['simulation']['initial']='d=5'
+        self.assertTrue(any('initial is not JSON' in e for e in check_simulation(bad,self.root)['errors']))
+        two=self.simulation();two['answer']['values']=['{"d":2}','{"d":3}']
+        self.assertTrue(any('exactly one value string' in e for e in check_simulation(two,self.root)['errors']))
+        self.assertTrue(any('exactly one value string' in e for e in check_question(two,self.root)))
+    def test_simulation_block_matches_interaction_and_state(self):
+        q=self.simulation();q['interaction']='choice'
+        self.assertTrue(any('Only a simulation item' in e for e in check_question(q,self.root)))
+        q=self.simulation();q['simulation']=None
+        self.assertTrue(any('no simulation block' in e for e in check_question(q,self.root)))
+        q=self.simulation();q['choices']=[{'id':'c','label':'1','element_ids':['prompt']}]
+        self.assertTrue(any('Simulation has no choices' in e for e in check_question(q,self.root)))
+        q=self.simulation();q['elements'][1]['representation']='text'
+        self.assertTrue(any('Exactly one element represents' in e for e in check_question(q,self.root)))
+        q=self.simulation();q['simulation']['asset']['sha256']='f'*64
+        self.assertTrue(any('Hash mismatch' in e for e in check_question(q,self.root)))
+        # 편집기가 못 보는 요건 4·9·12 는 저자가 확인해야 verified 다
+        done=self.simulation();done['state']='verified'
+        errs=check_simulation(done,self.root)['errors']
+        self.assertTrue(any('passed editor handshake' in e for e in errs))
+        self.assertTrue(any('4, 9, 12' in e for e in errs))
+        done['simulation']['conformance'].update(editor_handshake='passed',author_checked=[4,9,12])
+        self.assertEqual(check_simulation(done,self.root)['errors'],[])
 
 if __name__=='__main__':unittest.main()

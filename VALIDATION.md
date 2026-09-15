@@ -1,3 +1,13 @@
+# 1.1.0 검증 범위
+
+2026-09-15, Windows / Python 3.11.5. 시뮬레이션 문항 추가분은 **로컬 도구만 검증했다. 실제 MCP 등록 실측은 없다.**
+
+- 테스트 17개 통과(1.0.2 의 14개 + 3개): 자산 형식 판정(루트 `<svg>` 거부, 본문 인라인 svg 는 통과), 외부 참조·네트워크 호출 검출, 규약 문자열 누락 검출, 정답=출발상태·정답이 `config` 안에 있는 경우, 상호작용↔블록 정합, `verified` 에 필요한 적합성 기록.
+- 창작 사례 `examples/simulation-balance` 가 `check_manifest` · `check_simulation` 통과. 기존 사례 4종도 스키마 변경 뒤 통과.
+- **바깥 표본 대조**: 라이브러리의 실제 시뮬레이션 자산 다섯에 파일 검사를 돌렸다. 계약을 지키는 넷(`lever-v1` · `circuit-v1` · `titration-v1` · `collision-v1`)은 루트 `html`, 외부 참조 0, 네트워크 호출 0, 규약 문자열 누락 0 으로 **모두 통과**했고, 부적합 표본 `not-a-simulation.html` 은 규약 문자열 10개 전부 누락으로 **걸렸다**. 이 검사기를 위해 만든 파일이 아닌 표본에서 양성·음성이 갈렸다.
+- **하지 않은 것**: `teamsword_asset_upload {kind:"simulation"}` 실제 호출, `item.simulation.set` · `item.answer.simulation.set` 실제 호출, 편집기 핸드셰이크 통과 확인, 응시 화면 확인. 계약·명령 스키마·서버 갈래 판정은 라이브러리 코드(`DOCS/simulation-container-contract.md`, `editor-command/schemas.ts`, `assets/asset-validation.ts`)를 읽어 옮겼고 실행으로 확인하지 않았다.
+- 예시 `simulation.html` 은 `check_simulation.py` 기준으로만 확인했다. 요건 1·2·4·9·12 는 편집기에 넣어 봐야 하며 그 기록(`conformance.author_checked`)은 비어 있다.
+
 # 1.0.2 검증 범위
 
 2026-09-12, Windows / Python 3.11.5. 1.0.2 는 도구 3개 추가와 검사 강화이며 **재실측은 하지 않았다** — 아래 실측 표는 1.0.1 시점 기록이다.

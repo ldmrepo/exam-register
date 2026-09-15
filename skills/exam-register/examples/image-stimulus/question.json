@@ -155,6 +155,7 @@
     ],
     "evidence": "창작 문항 작성자가 지정한 정답. 공식 시험 정답 아님."
   },
+  "simulation": null,
   "printed_points": null,
   "registration": {
     "set_id": null,

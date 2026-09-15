@@ -32,6 +32,16 @@
 
 `content.insert.viewbox`의 `headText` 생략은 기본 `<보기>`를 생성한다. 제목 없는 원본은 `headText: ""`로 삽입하면 제목 없이 만들어진다(2026-09-12 105 배포본부터, #1598). 그 이전 서버는 생성 후 read에서 보기박스 ID를 얻어 `node.attrs.set {blockId,attrs:{headText:""}}`로 비운다 — `teamsword_commands_guide`의 `content.insert.viewbox` 스키마에서 `headText` 최소 길이가 1이면 옛 서버다. 박스 밖 안내문, 박스 제목 유무, 내부 문단 및 서식을 재조회한다. 문서가 general_document라는 이유로 박스를 제거하지 않는다.
 
+## 시뮬레이션 문항
+
+`item_create {type:qti_item, interaction:"simulationinteraction", title, setId}` → `item.prompt.set` → `teamsword_asset_upload {kind:"simulation"}` → `item.simulation.set {src, alt, …}` → `item.answer.simulation.set {value}` → `item_read` 로 되읽기.
+
+**컨테이너는 문서가 태어날 때 이미 있다** — 삽입 명령이 없다. `item.simulation.set` 은 그 빈 컨테이너를 채운다. 정답은 선택지가 아니라 값 하나라 `item.answer.set` 이 아니라 `item.answer.simulation.set` 이다.
+
+**`src` 를 주면 정답과 `initial` 이 지워진다** — 전제가 바뀌면 그 값들이 가리키던 상태가 없기 때문이다. 자산을 먼저 넣고 정답을 나중에 넣는다. `initial` · `value` 는 시뮬레이션이 낸 JSON 문자열을 **바이트 그대로** 옮긴다(채점이 문자열 동등성이다).
+
+범위: `alt` ≤ 2000자, `config` ≤ 16KB, `seed` 정수, `width` · `height` 50~10000, `align` `left|center|right`, `initial` · `value` 는 JSON 으로 읽히는 1~16KB 문자열. 자산은 **루트가 `<svg>` 가 아닌 자족 HTML 한 파일**이어야 업로드가 받는다. 계약 요건과 문서 뼈대는 [시뮬레이션 규칙](simulation-rules.md)에 있다.
+
 ## 문단 서식·구간 대괄호·언어 블록 (2026-09-12 배포본 기준)
 
 `target` 은 `current_block`(커서가 있는 블록) 또는 `selection`(선택이 닿은 모든 블록)이다. 대상 블록으로 이동하려면 read 의 blockId 로 `cursor.move.block` 을 먼저 실행하거나 `selection.select.block` 으로 선택한다. 적용 후 read 의 문단 속성으로 확인한다.

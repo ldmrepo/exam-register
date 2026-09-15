@@ -15,7 +15,9 @@ Codex에 저장소 주소와 `skills/exam-register` 경로를 제공하여 스�
 ## 사용
 
 작업 폴더에 inputs/cache/runs/config를 두고 원본 PDF를 inputs에 저장한다. Codex에 원본·대상 폴더·문항 범위를 알려 등록을 요청한다. 스킬은 원본 확인 → 요소 계획 → 추출 → 원본 대조 → MCP 등록 → 저장/화면 검증 순서로 진행한다.
-보조 도구: `render_pdf`·`crop_image`(렌더·크롭), `check_manifest`(명세·파일·상태 검사), `prepare_registration`(등록 전 게이트), `record_call`(MCP 요청·응답 기록), `check_readback`(저장본 대조), `record_state`(상태 전이). `check_manifest.py` 통과는 원문 정확도를 보장하지 않는다. 이미지 자료는 전체 캡션·범례를 보존하고 자른 이미지를 열어 확인한다. 업로드 실패를 텍스트·표로 대체하지 않는다.
+보조 도구: `render_pdf`·`crop_image`(렌더·크롭), `check_manifest`(명세·파일·상태 검사), `check_simulation`(시뮬레이션 자산·값 검사), `prepare_registration`(등록 전 게이트), `record_call`(MCP 요청·응답 기록), `check_readback`(저장본 대조), `record_state`(상태 전이). `check_manifest.py` 통과는 원문 정확도를 보장하지 않는다.
+
+답이 조작 결과의 상태인 문항은 시뮬레이션으로 등록한다 — 자족 HTML 한 파일을 `kind: simulation` 으로 올리고 컨테이너를 채운 뒤 정답을 지정한다. 계약 요건 12개와 절차는 [시뮬레이션 규칙](skills/exam-register/references/simulation-rules.md)에 있다. `check_simulation.py` 는 파일 형식·자족성·규약 문자열만 보며, 요건 1·2·4·9·12 는 편집기에 넣고 조작해야 확인된다. 이미지 자료는 전체 캡션·범례를 보존하고 자른 이미지를 열어 확인한다. 업로드 실패를 텍스트·표로 대체하지 않는다.
 
 ## 검증과 배포
 

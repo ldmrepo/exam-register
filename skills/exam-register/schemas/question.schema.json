@@ -57,7 +57,8 @@
     "interaction": {
       "enum": [
         "choice",
-        "short_answer"
+        "short_answer",
+        "simulation"
       ]
     },
     "max_choices": {
@@ -180,7 +181,8 @@
               "graph",
               "diagram",
               "formula",
-              "other"
+              "other",
+              "simulation"
             ]
           },
           "representation": {
@@ -188,7 +190,8 @@
               "text",
               "image",
               "latex",
-              "native_table"
+              "native_table",
+              "simulation"
             ]
           },
           "reason": {
@@ -591,6 +594,161 @@
         "additionalProperties": false
       },
       "minItems": 0
+    },
+    "simulation": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "asset": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "path",
+                "sha256",
+                "bytes"
+              ],
+              "additionalProperties": false
+            },
+            "alt": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            },
+            "config": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16384
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seed": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "initial": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16384
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "width": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 50,
+                  "maximum": 10000
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "height": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 50,
+                  "maximum": 10000
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "align": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "left",
+                    "center",
+                    "right"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "conformance": {
+              "type": "object",
+              "properties": {
+                "editor_handshake": {
+                  "enum": [
+                    "pending",
+                    "passed",
+                    "failed",
+                    "unavailable"
+                  ]
+                },
+                "author_checked": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  },
+                  "uniqueItems": true
+                },
+                "notes": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "editor_handshake",
+                "author_checked",
+                "notes"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "asset",
+            "alt",
+            "config",
+            "seed",
+            "initial",
+            "width",
+            "height",
+            "align",
+            "conformance"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "required": [
@@ -607,6 +765,7 @@
     "elements",
     "choices",
     "answer",
+    "simulation",
     "printed_points",
     "registration",
     "verification",

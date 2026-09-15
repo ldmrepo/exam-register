@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>지레 균형</title>
+<style>
+  :root {
+    --sim-font: system-ui, sans-serif;
+    --sim-size: 15px;
+    --sim-fg: #1b1b1b;
+    --sim-bg: #ffffff;
+    --sim-muted: #6b6b6b;
+    --sim-accent: #1d6fd0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 12px;
+    font: var(--sim-size)/1.5 var(--sim-font);
+    color: var(--sim-fg); background: var(--sim-bg);
+  }
+  svg { display: block; width: 100%; height: auto; }
+  .row { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  label { white-space: nowrap; }
+  input[type=range] { flex: 1 1 180px; min-width: 140px; accent-color: var(--sim-accent); }
+  output { font-variant-numeric: tabular-nums; min-width: 4.5em; }
+  .hint { color: var(--sim-muted); margin-top: 8px; }
+  [data-mode=review] input { pointer-events: none; }
+</style>
+</head>
+<body data-mode="test">
+
+<svg id="stage" viewBox="0 0 360 150" role="img" aria-hidden="true">
+  <line x1="20" y1="120" x2="340" y2="120" stroke="#c9c9c9" stroke-width="2"/>
+  <polygon points="180,118 168,140 192,140" fill="#8a8a8a"/>
+  <g id="beam">
+    <line x1="40" y1="100" x2="320" y2="100" stroke="#5a5a5a" stroke-width="6" stroke-linecap="round"/>
+    <rect id="wLeft" x="96" y="76" width="24" height="24" rx="3" fill="#b4462f"/>
+    <rect id="wRight" x="216" y="76" width="24" height="24" rx="3" fill="#1d6fd0"/>
+  </g>
+</svg>
+
+<div class="row">
+  <label for="d">오른쪽 추의 거리</label>
+  <input type="range" id="d" min="5" max="60" step="5" value="30"
+         aria-label="오른쪽 추의 받침점에서의 거리(미터)">
+  <output id="out" for="d"></output>
+</div>
+<p class="hint" id="hint"></p>
+
+<script>
+(function () {
+  'use strict';
+
+  /* 화면에 보이는 값만 config 에 싣는다 (계약 요건 11). 정답은 이 값들과
+     지레의 법칙에서 응시자가 유도하는 것이고, 저장되는 정답 문자열은
+     여기에 들어 있지 않다. */
+  var M1 = 2, X1 = 3, M2 = 3;   // 왼쪽 2kg 이 3m, 오른쪽은 3kg
+  var PX_PER_M = 40, PIVOT = 180;
+
+  var slider = document.getElementById('d');
+  var out = document.getElementById('out');
+  var hint = document.getElementById('hint');
+  var body = document.body;
+  var initial = null;
+
+  function d() { return slider.value / 10; }
+
+  /** 직렬화를 고정한다 (요건 10) — 키 하나, 숫자 하나. */
+  function value() { return { d: d() }; }
+
+  function tilt() {
+    var diff = M1 * X1 - M2 * d();
+    return Math.max(-9, Math.min(9, diff * 1.2));
+  }
+
+  function render() {
+    var deg = tilt();
+    document.getElementById('beam').setAttribute(
+      'transform', 'rotate(' + (-deg).toFixed(2) + ' ' + PIVOT + ' 100)');
+    document.getElementById('wLeft').setAttribute('x', PIVOT - X1 * PX_PER_M - 12);
+    document.getElementById('wRight').setAttribute('x', PIVOT + d() * PX_PER_M - 12);
+    out.textContent = d().toFixed(1) + ' m' + (Math.abs(deg) < 0.01 ? ' · 수평' : '');
+  }
+
+  function send(type, extra) {
+    var msg = { qtiSim: 1, type: type };
+    for (var k in extra) if (Object.prototype.hasOwnProperty.call(extra, k)) msg[k] = extra[k];
+    window.parent.postMessage(msg, '*');
+  }
+
+  /** 값이 바뀔 때마다 알린다 (요건 9) — response.set·reset 으로 바뀐 경우도 포함한다. */
+  function setState(v, notify) {
+    if (v && typeof v.d === 'number') slider.value = Math.round(v.d * 10);
+    render();
+    if (notify) send('response', { value: value(), complete: true });
+  }
+
+  function applyDisplay(tok) {
+    if (!tok) return;
+    var s = document.documentElement.style;
+    ['font', 'size', 'fg', 'bg', 'muted', 'accent'].forEach(function (k) {
+      if (tok[k]) s.setProperty('--sim-' + k, tok[k]);
+    });
+  }
+
+  function setMode(k) {
+    var known = ['author', 'practice', 'test', 'review'];
+    body.setAttribute('data-mode', known.indexOf(k) >= 0 ? k : 'test');
+    var mode = body.getAttribute('data-mode');
+    slider.disabled = mode === 'review';
+    hint.textContent = mode === 'author'
+      ? '지레가 수평이 되는 자리를 만든 뒤 「현재 상태를 정답으로」 를 누르십시오.'
+      : mode === 'review' ? '읽기 전용입니다.'
+      : '좌우 화살표 키나 끌기로 오른쪽 추의 자리를 0.5 m 씩 옮기십시오.';
+  }
+
+  function readConfig(c) {
+    var parsed = c;
+    if (typeof c === 'string') { try { parsed = JSON.parse(c); } catch (e) { return; } }
+    if (!parsed) return;
+    if (typeof parsed.m1 === 'number') M1 = parsed.m1;
+    if (typeof parsed.x1 === 'number') X1 = parsed.x1;
+    if (typeof parsed.m2 === 'number') M2 = parsed.m2;
+  }
+
+  slider.addEventListener('input', function () { setState(null, true); });
+
+  window.addEventListener('message', function (e) {
+    var msg = e.data;
+    if (!msg || msg.qtiSim !== 1) return;
+    if (msg.type === 'init') {
+      applyDisplay(msg.display);
+      readConfig(msg.config);
+      initial = msg.initial || null;
+      setMode(msg.mode);
+      /* 적용 순서는 response · initial · 기본값이다. */
+      setState(msg.response || initial, false);
+    } else if (msg.type === 'mode') {
+      setMode(msg.mode);
+    } else if (msg.type === 'response.set') {
+      setState(msg.value, true);            // 저장 시점 화면을 복원한다 (요건 12)
+    } else if (msg.type === 'response.get') {
+      send('response', { value: value(), complete: true, requestId: msg.requestId });
+    } else if (msg.type === 'reset') {
+      setState(initial, true);              // 기본값이 아니라 저자가 정한 출발점
+    }
+  });
+
+  function reportHeight() {
+    send('height', { px: Math.ceil(document.body.getBoundingClientRect().height) });
+  }
+  if (window.ResizeObserver) new ResizeObserver(reportHeight).observe(document.body);
+
+  setMode('test');
+  render();
+  send('ready', {
+    contract: 1,
+    capabilities: { resize: 'width', minWidth: 280, maxWidth: 640 },
+    a11y: {
+      description: '지레 균형 실험. 받침점 왼쪽 3미터 자리에 2킬로그램 추가 고정되어 있고, 오른쪽에 3킬로그램 추가 있다. 슬라이더를 좌우 화살표 키로 움직여 오른쪽 추의 거리를 0.5미터씩 0.5미터에서 6미터까지 정할 수 있다. 현재 거리와 지레가 수평인지 여부가 슬라이더 오른쪽에 글자로 표시된다.'
+    }
+  });
+})();
+</script>
+</body>
+</html>
